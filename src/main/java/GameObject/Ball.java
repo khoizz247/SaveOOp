@@ -65,10 +65,10 @@ public class Ball {
     }
 
     public void setDirection() {
-        double factor = speed / FXGLMath.sqrt(dx * dx + dy * dy);
-        dx *= factor;
-        dy *= factor;
-
+        double length = Math.sqrt(dx * dx + dy * dy);
+        if (length == 0) return;
+        dx = (dx / length) * speed;
+        dy = (dy / length) * speed;
     }
 
     public double getRadius() {
@@ -90,12 +90,58 @@ public class Ball {
         return value;
     }
 
+    private boolean checkContactToBlock(Block block) {
+        double closestX = clamp(ballX, block.getX(), block.getX() + block.getWidth());
+        double closestY = clamp(ballY, block.getY(), block.getY() + block.getHeight());
+        double dx = ballX - closestX;
+        double dy = ballY - closestY;
+        return (dx * dx + dy * dy) <= (radius * radius);
+    }
+
     public void updateBall(MyBlock myBlock, List<GameBlock> blocks) {
         ballX += dx;
         ballY += dy;
 
-        if (ballX - radius < 0 || ballX + radius > GameApplication.WIDTH) dx = -dx;
-        if (ballY - radius < 0) dy = -dy;
+        //Va chạm góc
+        if (ballX - radius <= 0) {
+            ballX = radius;
+            dx = -dx;
+        } else if (ballX + radius >= GameApplication.WIDTH) {
+            ballX = GameApplication.WIDTH - radius;
+            dx = -dx;
+        }
+        if (ballY - radius <= 0) {
+            ballY = radius;
+            dy = -dy;
+        }
+
+        // Va cham paddle
+        if (checkContactToBlock(myBlock)) {
+            double relativeIntersectX = (ballX - (myBlock.getX() + myBlock.getWidth() / 2));
+            double normalized = relativeIntersectX / (myBlock.getWidth() / 2);
+            double bounceAngle = normalized * (Math.PI / 3); // tối đa 60 độ
+
+            dx = speed * Math.sin(bounceAngle);
+            dy = -speed * Math.cos(bounceAngle);
+
+            ballY = myBlock.getY() - radius - 1;
+        }
+
+        // Va cham block
+        GameBlock collidedBlock = null;
+        for (GameBlock b : blocks) {
+            if (checkContactToBlock(b)) {
+                collidedBlock = b;
+                break;
+            }
+        }
+
+        if (collidedBlock != null) {
+            collidedBlock.contactGameBlock(this);
+            if (collidedBlock.handleBlock()) {
+                blocks.remove(collidedBlock);
+            }
+        }
 
         setDirection();
     }

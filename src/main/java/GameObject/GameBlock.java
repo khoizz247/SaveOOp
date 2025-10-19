@@ -14,7 +14,7 @@ public class GameBlock extends Block{
     }
 
     public GameBlock(double x, double y, int typeBlock) {
-        super(x, y, 50, 20);
+        super(x, y, 90, 30);
         this.typeBlock = typeBlock;
         this.durability = typeBlock;
     }

@@ -1,6 +1,5 @@
 package GameObject;
 
-import com.almasb.fxgl.core.math.FXGLMath;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import StartGame.GameApplication;
@@ -11,7 +10,7 @@ public class Ball {
     private double ballX;
     private double ballY;
     private double radius = 6;
-    private double speed = 3;
+    private double speed = 4;
     private double dx = 0;
     private double dy = -2;
 

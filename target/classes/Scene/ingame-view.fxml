@@ -5,27 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600" prefWidth="800.0" style="-fx-background-color: #00000099;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Scene.ControlGameScene">
-    <children>
-        <Label layoutX="258.0" layoutY="155.0" text="GAME PAUSE" textFill="#f7f7f7">
-            <font>
-                <Font name="Papyrus" size="32.0" />
-            </font>
-        </Label>
-        <Button layoutX="343.0" layoutY="254.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="RESUME" textFill="WHITE">
-            <font>
-                <Font name="Papyrus" size="16.0" />
-            </font>
-        </Button>
-        <Button layoutX="338.0" layoutY="300.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="RESTART" textFill="WHITE">
-            <font>
-                <Font name="Papyrus" size="16.0" />
-            </font>
-        </Button>
-        <Button layoutX="329.0" layoutY="346.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="QUIT GAME" textFill="WHITE">
-            <font>
-                <Font name="Papyrus" size="16.0" />
-            </font>
-        </Button>
-    </children>
+<?import javafx.scene.canvas.Canvas?>
+<AnchorPane prefHeight="600" prefWidth="800" style="-fx-background-color: #00000099;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Scene.ControlGameScene">
+    <Canvas fx:id="canvas" height="600" width="800" />
 </AnchorPane>

@@ -25,7 +25,7 @@ public class ControlHomeScene {
     @FXML
     private void startGame(ActionEvent event) throws Exception {
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/myarkanoid/ongame-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ingame-view.fxml"));
         Scene scene = new Scene(loader.load());
         stage.setScene(scene);
         stage.setTitle("My Game");

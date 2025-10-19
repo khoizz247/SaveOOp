@@ -11,18 +11,41 @@ import javafx.stage.Stage;
 public class ControlHomeScene {
 
     @FXML
-    private Button startButton;
+    private Button QuitButton;
+
+    @FXML
+    private Button SettingButton;
+
+    @FXML
+    private Button StartButton;
 
     @FXML
     public void initialize() {
+        // Gắn sự kiện cho nút "Start Game"
+        if (StartButton != null) {
+            StartButton.setOnAction(event -> {
+                try {
+                    startGame(event);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        // Gắn sự kiện cho nút "Quit Game"
+        if (QuitButton != null) {
+            QuitButton.setOnAction(event -> quitGame());
+        }
+
+        // Bỏ focus mặc định để tránh tự kích hoạt
         Platform.runLater(() -> {
-            if (startButton != null && startButton.getParent() != null) {
-                startButton.getParent().requestFocus();
+            if (StartButton != null && StartButton.getParent() != null) {
+                StartButton.getParent().requestFocus();
             }
         });
     }
 
-    @FXML
+    // Hàm xử lý khi ấn nút "Start Game"
     private void startGame(ActionEvent event) throws Exception {
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/myarkanoid/ongame-view.fxml"));
@@ -31,8 +54,9 @@ public class ControlHomeScene {
         stage.setTitle("My Game");
     }
 
-    @FXML
-    private void quitGame(ActionEvent event) {
-        Platform.exit();
+    // Hàm xử lý khi ấn nút "Quit Game"
+    private void quitGame() {
+        Platform.exit(); // Thoát ứng dụng JavaFX
+        System.exit(0);  // Đảm bảo JVM đóng hoàn toàn
     }
 }

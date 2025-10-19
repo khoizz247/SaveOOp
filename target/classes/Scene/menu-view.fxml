@@ -1,16 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
+<?import javafx.scene.AmbientLight?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="Scene.ControlHomeScene">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<AnchorPane fx:id="clickmebutton" prefHeight="600" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Scene.ControlHomeScene">
+    <children>
+        <AmbientLight color="CHARTREUSE" layoutX="195.0" layoutY="80.0" lightOn="true" />
+        <ImageView fitHeight="600.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../Image/background/background.png" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="250.0" fitWidth="500.0" layoutX="143.0" layoutY="49.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../Image/LogoGame/LogoGame.png" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="200.0" fitWidth="300.0" layoutX="243.0" layoutY="115.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../Image/LogoGame/Finn.png" />
+            </image>
+            <effect>
+                <DropShadow />
+            </effect>
+        </ImageView>
+
+        <Button fx:id="startButton" focusTraversable="false" layoutX="298.0" layoutY="259.0" onAction="#startGame" style="-fx-background-color: transparent; -fx-font-weight: bold; -fx-cursor: hand;" text="Start Game" textAlignment="CENTER" textFill="#fcfbfb">
+            <font>
+                <Font name="Papyrus" size="30.0" />
+            </font>
+            <effect>
+                <DropShadow />
+            </effect>
+        </Button>
+
+        <Button layoutX="343.0" layoutY="392.0" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-font-weight: bold;" text="Exit" textAlignment="CENTER" textFill="#fcfbfb">
+            <font>
+                <Font name="Papyrus" size="30.0" />
+            </font>
+            <effect>
+                <DropShadow />
+            </effect>
+        </Button>
+
+        <Button layoutX="321.0" layoutY="324.0" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-font-weight: bold;" text="Setting" textAlignment="CENTER" textFill="#fcfbfb">
+            <font>
+                <Font name="Papyrus" size="30.0" />
+            </font>
+            <effect>
+                <DropShadow />
+            </effect>
+        </Button>
+
+    </children>
+    <cursor>
+        <Cursor fx:constant="DEFAULT" />
+    </cursor>
+</AnchorPane>

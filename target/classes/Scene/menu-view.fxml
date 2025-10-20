@@ -33,17 +33,17 @@
         </ImageView>
       <VBox layoutX="158.0" layoutY="233.0" prefHeight="300.0" prefWidth="500.0">
          <children>
-            <Button fx:id="BoxButton" mnemonicParsing="false" prefHeight="300.0" prefWidth="500.0" style="-fx-background-color: transparnet;" text="Start Game" textFill="WHITE">
+            <Button fx:id="StartButton" mnemonicParsing="false" prefHeight="300.0" prefWidth="500.0" style="-fx-background-color: transparnet;" text="Start Game" textFill="WHITE">
                <font>
                   <Font name="Papyrus" size="30.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" prefHeight="300.0" prefWidth="500.0" style="-fx-background-color: transparnt;" text="Setting" textFill="WHITE">
+            <Button fx:id="SettingButton" mnemonicParsing="false" prefHeight="300.0" prefWidth="500.0" style="-fx-background-color: transparnt;" text="Setting" textFill="WHITE">
                <font>
                   <Font name="Papyrus" size="30.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" prefHeight="300.0" prefWidth="500.0" style="-fx-background-color: transparent;" text="Quit Game" textFill="WHITE">
+            <Button fx:id="QuitButton" mnemonicParsing="false" prefHeight="300.0" prefWidth="500.0" style="-fx-background-color: transparent;" text="Quit Game" textFill="WHITE">
                <font>
                   <Font name="Papyrus" size="30.0" />
                </font>

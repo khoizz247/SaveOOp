@@ -56,7 +56,9 @@ public class ControlHomeScene {
 
     // Hàm xử lý khi ấn nút "Quit Game"
     private void quitGame() {
-        Platform.exit(); // Thoát ứng dụng JavaFX
-        System.exit(0);  // Đảm bảo JVM đóng hoàn toàn
+            Stage stage = (Stage) QuitButton.getScene().getWindow();
+            stage.close();       // Đóng cửa sổ hiện tại
+            Platform.exit();    // Thoát ứng dụng JavaFX
+            System.exit(0);     // Thoát hẳn JVM (đảm bảo tắt hoàn toàn)
     }
 }

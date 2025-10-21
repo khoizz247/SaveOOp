@@ -1,0 +1,14 @@
+.menu-button {
+    -fx-text-fill: white;
+    -fx-font-weight: normal;
+    -fx-font-family: "Papyrus";
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-font-size: 30px;
+    -fx-transition: all 0.2s ease-in;
+}
+
+.menu-button:hover {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-weight: bold;
+}

@@ -11,7 +11,7 @@ public class GameApplication extends Application {
 
     public static final int WIDTH = 800;
 
-    public static final int LENGTH = 600;
+    public static final int HEIGHT = 600;
 
     @Override
     public void start(Stage stage) throws IOException {

@@ -6,7 +6,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.canvas.Canvas?>
 <AnchorPane prefHeight="600" prefWidth="800.0" style="-fx-background-color: #00000099;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Scene.ControlGameScene">
+    <Canvas fx:id="canvas" height="600" width="800" />
     <children>
         <Label layoutX="260.0" layoutY="155.0" text="GAME PAUSE" textFill="#f7f7f7">
             <font>

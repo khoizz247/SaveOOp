@@ -52,7 +52,7 @@ public class ControlHomeScene {
     private void startGame(ActionEvent event) {
         try {
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("ingame-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
             Scene scene = new Scene(loader.load());
             stage.setScene(scene);
         } catch (Exception e) {

@@ -13,4 +13,5 @@ module Scene {
     exports GameObject;
     exports GameLoop;
     exports StartGame;
+    exports LoadResource;
 }

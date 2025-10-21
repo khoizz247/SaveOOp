@@ -18,9 +18,9 @@ public class Ball {
 
     }
 
-    public Ball(double x, double y) {
-        this.ballX = x;
-        this.ballY = y;
+    public Ball(double yMyBlock) {
+        this.ballX = GameApplication.WIDTH / 2.0;
+        this.ballY = yMyBlock - radius;
     }
 
     public double getBallX() {

@@ -13,7 +13,7 @@
                 <Font name="Papyrus" size="32.0" />
             </font>
         </Label>
-      <VBox layoutX="270.0" layoutY="254.0" prefHeight="167.0" prefWidth="260.0">
+      <VBox layoutX="300.0" layoutY="240.0" prefHeight="165.0" prefWidth="200.0">
          <children>
               <Button fx:id="ResumeButton" mnemonicParsing="false" prefHeight="200.0" prefWidth="260.0" style="-fx-background-color: transparent;" text="RESUME" textFill="WHITE">
                   <font>

@@ -1,5 +1,6 @@
 package StartGame;
 
+import LoadResource.LoadImage;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,8 +16,10 @@ public class GameApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        LoadImage.loadAllImage();
+
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("/Scene/menu-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+        Scene scene = new Scene(fxmlLoader.load(), WIDTH, HEIGHT);
         stage.setTitle("Arkanoid");
         stage.setScene(scene);
         stage.show();

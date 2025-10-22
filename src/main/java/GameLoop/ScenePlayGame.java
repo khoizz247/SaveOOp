@@ -3,7 +3,7 @@ package GameLoop;
 import GameObject.ManageBall;
 import GameObject.ManageGameBlock;
 import GameObject.MyBlock;
-import GameObject.Character;
+import GameObject.MainCharacter;
 import GameObject.Map;
 
 import javafx.animation.AnimationTimer;
@@ -25,7 +25,7 @@ public class ScenePlayGame {
     private MyBlock myBlock;
     private ManageGameBlock listBlocks;
     private ManageBall listBalls;
-    private Character mainCharacter;
+    private MainCharacter mainCharacter;
     private Map map;
 
     public void runGame(Canvas canvas) {
@@ -42,7 +42,7 @@ public class ScenePlayGame {
 
     private void initObject() {
         myBlock = new MyBlock(70, 70, 4);
-        mainCharacter = new Character();
+        mainCharacter = new MainCharacter();
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
         listBlocks = new ManageGameBlock();
         listBalls = new ManageBall(myBlock.getY());

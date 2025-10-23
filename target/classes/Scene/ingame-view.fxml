@@ -10,12 +10,12 @@
 <AnchorPane prefHeight="600" prefWidth="800.0" style="-fx-background-color: #00000099;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Scene.ControlGameScene">
     <Canvas fx:id="canvas" height="600" width="800" />
     <children>
-        <Label layoutX="260.0" layoutY="155.0" text="GAME PAUSE" textFill="#f7f7f7">
+        <Label fx:id="textMenu" layoutX="260.0" layoutY="155.0" text="GAME PAUSE" textFill="#f7f7f7">
             <font>
                 <Font name="Papyrus" size="32.0" />
             </font>
         </Label>
-      <VBox layoutX="300.0" layoutY="240.0" prefHeight="165.0" prefWidth="200.0">
+      <VBox fx:id="pauseMenu" layoutX="300.0" layoutY="240.0" prefHeight="165.0" prefWidth="200.0">
          <children>
               <Button fx:id="ResumeButton" mnemonicParsing="false" prefHeight="200.0" prefWidth="260.0" style="-fx-background-color: transparent;" text="RESUME" textFill="WHITE">
                   <font>

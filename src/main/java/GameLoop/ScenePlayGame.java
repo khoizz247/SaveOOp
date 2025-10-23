@@ -137,11 +137,11 @@ public class ScenePlayGame {
         }
     }
 
-    public void pauseGame() {
+    public void pause() {
         running = false;
     }
 
-    public void resumeGame() {
+    public void resume() {
         running = true;
     }
 
@@ -159,5 +159,56 @@ public class ScenePlayGame {
         map.addMapOnScreen(gc);
         mainCharacter.addCharacterOnScreen(gc);
 
+    }
+
+    public boolean isIngame() {
+        return isIngame;
+    }
+
+    public void setIngame(boolean ingame) {
+        this.isIngame = ingame;
+    }
+
+    public void restartRPG(Canvas canvas) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // reset đối tượng
+        mainCharacter = new MainCharacter();
+        map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
+        pressedKeys.clear();
+
+        // reset trạng thái
+        isIngame = false;
+        level = 1;
+        running = true;
+
+        // chạy lại vòng lặp
+        if (gameLoop != null) gameLoop.stop();
+        startLevel(gc, canvas);
+    }
+
+    public void restartArkanoid(Canvas canvas) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        myBlock = new MyBlock(70, 70, 4);
+        listBlocks = new ManageGameBlock();
+        listBalls = new ManageBall(myBlock.getY());
+        pressedKeys.clear();
+
+        isIngame = true;
+        level = 1;
+        running = true;
+
+        if (gameLoop != null) gameLoop.stop();
+        startLevel(gc, canvas);
+    }
+
+    public boolean isInArkanoid() {
+        return isIngame; // true = đang trong mini game bắn bóng
+    }
+
+    public void quitToMainGame() {
+        isIngame = false;   // quay lại màn hình RPG
+        running = true;     // đảm bảo vòng lặp tiếp tục chạy
     }
 }

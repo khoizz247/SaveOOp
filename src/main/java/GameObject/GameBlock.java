@@ -1,23 +1,29 @@
 package GameObject;
 
+import LoadResource.LoadImage;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class GameBlock extends Block{
+    private Image[] graphic;
     private int typeBlock;
     private int durability;
 
     public GameBlock(int typeBlock) {
+        this.graphic = LoadImage.getBlock();
         this.typeBlock = typeBlock;
         this.durability = typeBlock;
     }
 
     public GameBlock(double x, double y, int typeBlock) {
         super(x, y, 90, 30);
+        this.graphic = LoadImage.getBlock();
         this.typeBlock = typeBlock;
         this.durability = typeBlock;
     }
+
+
 
     public int getDurability() {
         return durability;
@@ -29,16 +35,15 @@ public class GameBlock extends Block{
 
     @Override
     public void addOnScene(GraphicsContext gc) {
-        //gc.drawImage(graphic, X, Y, width, height);
-        if (typeBlock == 1) {
-            gc.setFill(Color.YELLOW);
+        Image state;
+        if (durability == 1) {
+            state = graphic[2];
+        } else if (durability == 2){
+            state = graphic[1];
         } else {
-            gc.setFill(Color.BLUE);
+            state = graphic[0];
         }
-        gc.fillRect(getX(), getY(), getWidth(), getHeight());
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(3);
-        gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+        gc.drawImage(state, getX(), getY(), getWidth(), getHeight());
     }
 
     public boolean handleBlock() {

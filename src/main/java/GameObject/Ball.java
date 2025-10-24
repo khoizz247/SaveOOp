@@ -13,14 +13,16 @@ public class Ball {
     private double speed = 4;
     private double dx = 0;
     private double dy = -2;
+    private boolean isInScreen;
 
-    public Ball() {
-
-    }
-
-    public Ball(double yMyBlock) {
-        this.ballX = GameApplication.WIDTH / 2.0;
-        this.ballY = yMyBlock - radius;
+    public Ball(double ballX, double ballY, double radius, double speed, double dx, double dy) {
+        this.ballX = ballX;
+        this.ballY = ballY;
+        this.radius = radius;
+        this.speed = speed;
+        this.dx = dx;
+        this.dy = dy;
+        this.isInScreen = true;
     }
 
     public double getBallX() {
@@ -143,6 +145,14 @@ public class Ball {
         }
 
         setDirection();
+    }
+
+    public boolean checkOutScreen() {
+        if ((getBallY() - getRadius()) > GameApplication.HEIGHT) {
+            isInScreen = false;
+            return true;
+        }
+        return false;
     }
 
 }

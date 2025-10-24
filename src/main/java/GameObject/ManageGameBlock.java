@@ -9,21 +9,18 @@ import java.util.Scanner;
 
 public class ManageGameBlock {
     private List<GameBlock> gameBlocks = new ArrayList<>();
-    private int numberBlock;
 
     public List<GameBlock> getGameBlocks() {
         return gameBlocks;
     }
 
     public int getNumberBlock() {
-        return numberBlock;
+        return gameBlocks.size();
     }
 
-    public void setNumberBlock(int numberBlock) {
-        this.numberBlock = numberBlock;
-    }
+    public void resetGameBlock(int level) {
+        gameBlocks.clear();
 
-    public void updateList(int level) {
         File file;
         try {
             if (level == 1) {
@@ -39,7 +36,6 @@ public class ManageGameBlock {
                 y = sc.nextInt();
                 hard = sc.nextInt();
                 gameBlocks.add(new GameBlock((x - 1) * 100.0, 30 + (y - 1) * 40.0, hard));
-                numberBlock++;
             }
             sc.close();
         } catch (FileNotFoundException e) {

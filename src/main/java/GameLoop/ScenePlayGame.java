@@ -45,12 +45,18 @@ public class ScenePlayGame {
         mainCharacter = new MainCharacter();
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
         listBlocks = new ManageGameBlock();
-        listBalls = new ManageBall(myBlock.getY());
+        listBalls = new ManageBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
+    }
+
+    public void resetObject() {
+        myBlock.resetMyBlock();
+        listBlocks.resetGameBlock(level);
+        listBalls.resetBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
     }
 
     //Vong lap chinh
     private void startLevel(GraphicsContext gc, Canvas canvas) {
-        listBlocks.updateList(level);
+        listBlocks.resetGameBlock(level);
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -59,9 +65,13 @@ public class ScenePlayGame {
                         updateInGame();
                         renderInGame(gc, canvas);
                         if (listBlocks.getNumberBlock() == 0) {
-                            gameLoop.stop();
-                            level++;
-                            startLevel(gc, canvas);
+                            isIngame = false;
+                            level ++;
+                            resetObject();
+                        }
+                        if (listBalls.getNumOfBalls() == 0) {
+                            isIngame = false;
+                            resetObject();
                         }
                     } else {
                         updateInLoppy();
@@ -190,9 +200,7 @@ public class ScenePlayGame {
     public void restartArkanoid(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        myBlock = new MyBlock(70, 70, 4);
-        listBlocks = new ManageGameBlock();
-        listBalls = new ManageBall(myBlock.getY());
+        resetObject();
         pressedKeys.clear();
 
         isIngame = true;

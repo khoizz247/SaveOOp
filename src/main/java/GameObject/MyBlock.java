@@ -15,6 +15,10 @@ public class MyBlock extends Block {
         this.speed = speed;
     }
 
+    public void resetMyBlock() {
+        setX((GameApplication.WIDTH - getWidth()) / 2);
+    }
+
     public double getSpeed() {
         return speed;
     }

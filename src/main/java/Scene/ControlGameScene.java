@@ -90,6 +90,7 @@ public class ControlGameScene {
     }
 
     private void quitGameArkanoid() {
+        scenePlayGame.resetObject();
         isPaused = false;
         pauseMenu.setVisible(false);
         textMenu.setVisible(false);

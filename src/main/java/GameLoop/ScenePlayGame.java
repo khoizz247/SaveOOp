@@ -1,16 +1,12 @@
 package GameLoop;
 
-import GameObject.ManageBall;
-import GameObject.ManageGameBlock;
-import GameObject.MyBlock;
-import GameObject.MainCharacter;
-import GameObject.Map;
+import GameObject.*;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
-
+import javafx.scene.shape.Rectangle;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +23,10 @@ public class ScenePlayGame {
     private ManageBall listBalls;
     private MainCharacter mainCharacter;
     private Map map;
+    //private NPC npc;
+
+    private ManageNPC manageNPC;
+    private ManageMap manageMap;
 
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -43,9 +43,13 @@ public class ScenePlayGame {
     private void initObject() {
         myBlock = new MyBlock(70, 70, 4);
         mainCharacter = new MainCharacter();
+        //npc = new NPC(350, 450, 350); // vị trí và kích thước NPC
+
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
         listBlocks = new ManageGameBlock();
         listBalls = new ManageBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
+        manageNPC = new ManageNPC();
+        manageMap = new ManageMap();
     }
 
     public void resetObject() {
@@ -96,47 +100,72 @@ public class ScenePlayGame {
 
     //Xu li di chuyen nhan vat
     private void updateInLoppy() {
+        manageNPC.update(System.nanoTime());
 
         boolean isW = pressedKeys.contains(KeyCode.W);
         boolean isA = pressedKeys.contains(KeyCode.A);
         boolean isS = pressedKeys.contains(KeyCode.S);
         boolean isD = pressedKeys.contains(KeyCode.D);
 
-        if (!(isA || isD || isW || isS) || (isA && isD && isW && isS)
-                || (isA && isD && !isS && !isW) || (!isA && !isD && isS && isW)) {
+        // Nếu không có phím nào được nhấn hoặc các phím đối nghịch được nhấn, nhân vật đứng yên
+        if (!(isA || isD || isW || isS) || (isA && isD) || (isW && isS)) {
             mainCharacter.setRunning(false);
         } else {
             mainCharacter.setRunning(true);
-            if (isA && !isD) {
-                mainCharacter.setDirection(1);
-                if (isW && isS || !isW && !isS) {
-                    mainCharacter.setxOnMap(mainCharacter.getxOnMap() - mainCharacter.getSpeed());
-                } else if (isW) {
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() - mainCharacter.getSpeed() * Math.sin(45));
-                    mainCharacter.setxOnMap(mainCharacter.getxOnMap() - mainCharacter.getSpeed() * Math.sin(45));
-                } else {
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() + mainCharacter.getSpeed() * Math.sin(45));
-                    mainCharacter.setxOnMap(mainCharacter.getxOnMap() - mainCharacter.getSpeed() * Math.sin(45));
-                }
-            } else if (isD && !isA) {
-                mainCharacter.setDirection(2);
-                if (isW && isS || !isW && !isS) {
-                    mainCharacter.setxOnMap(mainCharacter.getxOnMap() + mainCharacter.getSpeed());
-                } else if (isW) {
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() - mainCharacter.getSpeed() * Math.sin(45));
-                    mainCharacter.setxOnMap(mainCharacter.getxOnMap() + mainCharacter.getSpeed() * Math.sin(45));
-                } else {
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() + mainCharacter.getSpeed() * Math.sin(45));
-                    mainCharacter.setxOnMap(mainCharacter.getxOnMap() + mainCharacter.getSpeed() * Math.sin(45));
-                }
-            } else {
-                if (isW) {
-                    mainCharacter.setDirection(3);
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() - mainCharacter.getSpeed());
-                } else {
-                    mainCharacter.setDirection(0);
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() + mainCharacter.getSpeed());
-                }
+
+            double currentX = mainCharacter.getxOnMap();
+            double currentY = mainCharacter.getyOnMap();
+            double speed = mainCharacter.getSpeed();
+            double diagonalSpeed = speed * Math.sin(Math.toRadians(45)); // Tốc độ khi đi chéo
+
+            double dx = 0;
+            double dy = 0;
+
+            // Tính toán vector di chuyển (dx, dy)
+            if (isW) dy -= (isA || isD) ? diagonalSpeed : speed;
+            if (isS) dy += (isA || isD) ? diagonalSpeed : speed;
+            if (isA) dx -= (isW || isS) ? diagonalSpeed : speed;
+            if (isD) dx += (isW || isS) ? diagonalSpeed : speed;
+
+            // Cập nhật hướng nhìn của nhân vật
+            if (isA && !isD) mainCharacter.setDirection(1);
+            else if (isD && !isA) mainCharacter.setDirection(2);
+            else if (isW && !isS) mainCharacter.setDirection(3);
+            else if (isS && !isW) mainCharacter.setDirection(0);
+
+            // Tọa độ tiếp theo tiềm năng
+            double nextX = currentX + dx;
+            double nextY = currentY + dy;
+
+            // --- LOGIC KIỂM TRA VA CHẠM ---
+            // Định nghĩa hitbox cho nhân vật (có thể nhỏ hơn kích thước ảnh để trông thật hơn)
+            // Ví dụ: hitbox ở dưới chân nhân vật
+            double hitboxWidth = mainCharacter.getSize() / 3;
+            double hitboxHeight = mainCharacter.getSize() / 4;
+            double hitboxOffsetX = (mainCharacter.getSize() - hitboxWidth) / 2;
+            double hitboxOffsetY = mainCharacter.getSize() - hitboxHeight - 5; // đặt hitbox ở dưới chân
+
+            // Kiểm tra va chạm theo trục X
+            Rectangle characterBoundsX = new Rectangle(
+                    nextX + hitboxOffsetX,
+                    currentY + hitboxOffsetY,
+                    hitboxWidth,
+                    hitboxHeight
+            );
+            if (!manageMap.isColliding(characterBoundsX)) {
+                mainCharacter.setxOnMap(nextX);
+            }
+
+            // Kiểm tra va chạm theo trục Y
+            // Sử dụng getxOnMap() đã được cập nhật để kiểm tra Y chính xác hơn khi trượt dọc tường
+            Rectangle characterBoundsY = new Rectangle(
+                    mainCharacter.getxOnMap() + hitboxOffsetX,
+                    nextY + hitboxOffsetY,
+                    hitboxWidth,
+                    hitboxHeight
+            );
+            if (!manageMap.isColliding(characterBoundsY)) {
+                mainCharacter.setyOnMap(nextY);
             }
         }
 
@@ -168,7 +197,8 @@ public class ScenePlayGame {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         map.addMapOnScreen(gc);
         mainCharacter.addCharacterOnScreen(gc);
-
+        // npc.render(gc, map); // <- Bỏ dòng này
+        manageNPC.render(gc, map); // <- Thay bằng dòng này
     }
 
     public boolean isIngame() {

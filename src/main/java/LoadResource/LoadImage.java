@@ -19,6 +19,16 @@ public class LoadImage {
 
     private static Image map1;
 
+    private static Image[] npcIdle;
+
+    public static Image[] getNpcIdle() {
+        return npcIdle;
+    }
+
+    private static void loadNpcImage() {
+        npcIdle = loadCharFrame("/Image/NPC/demon_idle_%d.png", 6); // ví dụ có 8 frame
+    }
+
     public static Image[] getIdleAhead() {
         return idleAhead;
     }
@@ -82,6 +92,7 @@ public class LoadImage {
 
     public static void loadAllImage() {
         loadCharImage();
+        loadNpcImage();
         map1 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/test1.png")));
         block = loadCharFrame("/Image/Block/blue_block_%d.png", 3);
     }

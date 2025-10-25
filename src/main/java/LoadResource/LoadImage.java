@@ -14,10 +14,11 @@ public class LoadImage {
     private static Image[] runBehind;
     private static Image[] runLeft;
     private static Image[] runRight;
-
-    private static Image[] block;
+    private static Image[][] allBlocks;
 
     private static Image map1;
+    private static Image map2;
+    private static Image map3;
 
     private static Image[] npcIdle;
 
@@ -65,8 +66,8 @@ public class LoadImage {
         return map1;
     }
 
-    public static Image[] getBlock() {
-        return block;
+    public static Image[][] getBlockImages() {
+        return allBlocks;
     }
 
     private static Image[] loadCharFrame(String format, int numOfFrame) {
@@ -90,11 +91,26 @@ public class LoadImage {
         runRight = loadCharFrame("/Image/MainChar/RunState/right/run_right_%d.png", 8);
     }
 
+    public static Image getMap3() {
+        return map3;
+    }
+
+    public static Image getMap2() {
+        return map2;
+    }
+
     public static void loadAllImage() {
         loadCharImage();
         loadNpcImage();
-        map1 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/test1.png")));
-        block = loadCharFrame("/Image/Block/blue_block_%d.png", 3);
+        map1 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map1.png")));
+        map2 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map2.png")));
+        map3 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map3.png")));
+        allBlocks = new Image[5][3]; // 5 màu, 3 trạng thái
+        allBlocks[0] = loadCharFrame("/Image/Block/blue_block_%d.png", 3);
+        allBlocks[1] = loadCharFrame("/Image/Block/green_block_%d.png", 3);
+        allBlocks[2] = loadCharFrame("/Image/Block/pink_block_%d.png", 3);
+        allBlocks[3] = loadCharFrame("/Image/Block/red_block_%d.png", 3);
+        allBlocks[4] = loadCharFrame("/Image/Block/yellow_block_%d.png", 3);
     }
 }
 

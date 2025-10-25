@@ -67,7 +67,7 @@ public class MainCharacter extends Character {
     }
 
     //Render hoat anh nhan vat
-    public void addCharacterOnScreen(GraphicsContext gc) {
+    public void addCharacterOnScreen(GraphicsContext gc, Map map) {
         Image[] currentAnimation;
         int frameSkip;
         if (isRunning) {
@@ -103,8 +103,11 @@ public class MainCharacter extends Character {
             }
         }
         gc.drawImage(currentAnimation[state / frameSkip],
-                GameApplication.WIDTH / 2.0 - getSize() / 2,
-                GameApplication.HEIGHT / 2.0 - getSize() / 2, getSize(), getSize());
+                map.characterDrawX,  // <-- SỬA LẠI
+                map.characterDrawY,  // <-- SỬA LẠI
+                getSize(), getSize());
+        // --- (Hết thay đổi) ---
+
         state ++;
     }
 }

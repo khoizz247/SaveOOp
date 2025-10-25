@@ -147,7 +147,6 @@ public class ScenePlayGame {
             double nextX = currentX + dx;
             double nextY = currentY + dy;
 
-            // --- ĐÂY LÀ PHẦN CODE BỊ THIẾU ---
             // Định nghĩa hitbox cho va chạm tường
             double hitboxWidth = mainCharacter.getSize() / 3;
             double hitboxHeight = mainCharacter.getSize() / 4;
@@ -175,16 +174,14 @@ public class ScenePlayGame {
             if (!manageMap.isColliding(characterBoundsY)) {
                 mainCharacter.setyOnMap(nextY); // <-- CẬP NHẬT VỊ TRÍ Y
             }
-            // --- HẾT PHẦN CODE BỊ THIẾU ---
         }
 
-        // --- PHẦN NÀY PHẢI ĐẶT BÊN NGOÀI ELSE ---
+
         // Cập nhật vị trí camera (bản đồ) dựa trên vị trí MỚI của nhân vật
         map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
 
         // ---
         // CÁC KIỂM TRA VA CHẠM KHÁC (PORTAL, NPC)
-        // Chúng ta sẽ dùng một hitbox chung (lớn hơn một chút) cho portal và NPC
         // ---
 
         double playerHitboxWidth = mainCharacter.getSize() / 3;
@@ -201,39 +198,54 @@ public class ScenePlayGame {
 
         // --- LOGIC: KIỂM TRA VA CHẠM VỚI PORTAL ---
         // (Sử dụng `playerBounds` thay vì `currentBounds` để dễ va chạm hơn)
-        if (manageMap.isCollidingWithPortal(playerBounds)) {
+        int portalIndex = manageMap.getCollidingPortalIndex(playerBounds);
+        if (portalIndex != -1) {
             if (manageNPC.allNpcsDefeated()) {
                 // --- CHUYỂN MAP ---
-                if (currentMapLevel == 1) {
-                    currentMapLevel = 2;
-                } else {
-                    currentMapLevel = 1;
-                }
-                System.out.println("Chuyển sang map " + currentMapLevel);
+                int nextMap = -1;
+                double nextX = 800;
+                double nextY = 100;
 
-                // 1. Tải địa hình & portal mới
-                manageMap.loadMap(currentMapLevel);
-                // 2. Tải NPC mới
-                manageNPC.loadNpcsForMap(currentMapLevel);
-                // 3. Đổi ảnh nền
-                map.setMapImage(currentMapLevel);
-                // 4. Di chuyển nhân vật đến vị trí bắt đầu của map mới
-                if (currentMapLevel == 2) {
-                    mainCharacter.setxOnMap(800); // Vị trí bắt đầu map 2
-                    mainCharacter.setyOnMap(1400); // Gần portal cũ (tường dưới)
-                } else {
-                    mainCharacter.setxOnMap(800); // Vị trí bắt đầu map 1
-                    mainCharacter.setyOnMap(100); // Gần portal cũ (tường trên)
+                if (currentMapLevel == 1) {
+                    if (portalIndex == 0) {
+                        nextMap = 2;
+                        nextX = 750;
+                        nextY = 550;
+                    }
+                } else if (currentMapLevel == 2) {
+                    if (portalIndex == 0) {
+                        nextMap = 3;
+                        // --- SỬA TỌA ĐỘ SPAWN CỦA MAP 3 ---
+                        nextX = 200; // Đặt ở vị trí nhỏ, trong map
+                        nextY = 200; // Đặt ở vị trí nhỏ, trong map
+                        // --- (Hết) ---
+                    } else if (portalIndex == 1) {
+                        nextMap = 1;
+                        nextX = 750;
+                        nextY = 100;
+                    }
+                } else if (currentMapLevel == 3) {
+                    if (portalIndex == 0) {
+                        nextMap = 2;
+                        nextX = 750;
+                        nextY = 100;
+                    }
+                }
+
+                // Nếu `nextMap` đã được set
+                if (nextMap != -1) {
+                    // ... (code tải map giữ nguyên) ...
+                    currentMapLevel = nextMap;
+                    System.out.println("Chuyển sang map " + currentMapLevel);
+                    manageMap.loadMap(currentMapLevel);
+                    manageNPC.loadNpcsForMap(currentMapLevel);
+                    map.setMapImage(currentMapLevel);
+                    mainCharacter.setxOnMap(nextX);
+                    mainCharacter.setyOnMap(nextY);
                 }
 
             } else {
-                System.out.println("Bạn phải tiêu diệt hết quái!");
-                // Đẩy nhân vật lùi lại một chút để tránh spam thông báo
-                if (currentMapLevel == 1) {
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 20); // Lùi xuống
-                } else {
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() - 20); // Lùi lên
-                }
+                // ... (code đẩy lùi nhân vật giữ nguyên) ...
             }
         }
         // --- (Hết logic portal) ---
@@ -242,7 +254,8 @@ public class ScenePlayGame {
         // --- LOGIC VA CHẠM VỚI NPC ---
         // (Dùng lại `playerBounds` đã tính ở trên)
         for (NPC npc : manageNPC.getNpcs()) {
-            if (npc.isDefeated()) continue; // Bỏ qua NPC đã bị đánh bại
+            // ... (code va chạm NPC giữ nguyên) ...
+            if (npc.isDefeated()) continue;
 
             Rectangle npcBounds = new Rectangle(
                     npc.getxOnMap(),
@@ -253,9 +266,9 @@ public class ScenePlayGame {
 
             if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
                 isIngame = true;
-                currentOpponent = npc; // Lưu lại NPC đang giao chiến
-                level = npc.getArkanoidLevel(); // Lấy level Arkanoid từ NPC
-                resetObject(); // Tải màn Arkanoid tương ứng
+                currentOpponent = npc;
+                level = npc.getArkanoidLevel();
+                resetObject();
                 break;
             }
         }
@@ -282,7 +295,7 @@ public class ScenePlayGame {
     private void renderInLoppy(GraphicsContext gc, Canvas canvas) {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         map.addMapOnScreen(gc);
-        mainCharacter.addCharacterOnScreen(gc);
+        mainCharacter.addCharacterOnScreen(gc, map);
         // npc.render(gc, map); // <- Bỏ dòng này
         manageNPC.render(gc, map); // <- Thay bằng dòng này
     }

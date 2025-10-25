@@ -31,6 +31,8 @@ public class ManageMap {
 
         } else if (currentMapLevel == 2) {
             //map 2
+        } else if (currentMapLevel == 3) {
+            //map 3
         }
     }
 
@@ -41,7 +43,10 @@ public class ManageMap {
             portalBounds.add(new Rectangle(750, 64, 100, 10)); // (x, y, width, height)
         } else if (currentMapLevel == 2) {
             // Portal ở map 2, đặt ở tường dưới để quay lại
-            portalBounds.add(new Rectangle(750, 64, 100, 10));
+            portalBounds.add(new Rectangle(0, 0, 100, 10));
+            portalBounds.add(new Rectangle(750, 500, 100, 10));
+        } else if (currentMapLevel == 3) {
+            portalBounds.add(new Rectangle(0, 0, 100, 10));
         }
     }
 
@@ -56,13 +61,15 @@ public class ManageMap {
         return false; // Không có va chạm
     }
 
-    public boolean isCollidingWithPortal(Rectangle bounds) {
-        for (Rectangle portalBox : portalBounds) {
-            if (portalBox.intersects(bounds.getLayoutBounds())) {
-                return true;
+    public int getCollidingPortalIndex(Rectangle bounds) {
+        // Trả về index của portal (0, 1, 2...) nếu va chạm
+        // Trả về -1 nếu không va chạm
+        for (int i = 0; i < portalBounds.size(); i++) {
+            if (portalBounds.get(i).intersects(bounds.getLayoutBounds())) {
+                return i;
             }
         }
-        return false;
+        return -1;
     }
-
+    // --- (Hết) ---
 }

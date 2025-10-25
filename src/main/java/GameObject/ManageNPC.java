@@ -22,6 +22,7 @@ public class ManageNPC {
             // npcs.add(new NPC(200, 600, 300, 2)); // Ví dụ NPC dùng Arkanoid level 2
         } else if (mapLevel == 2) {
             // map 2
+        } else if  (mapLevel == 3) {
         }
     }
 

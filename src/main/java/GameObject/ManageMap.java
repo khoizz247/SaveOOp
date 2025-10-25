@@ -9,22 +9,31 @@ public class ManageMap {
         initializeCollisionBounds();
     }
     private void initializeCollisionBounds() {
-        collisionBounds.add(new Rectangle(730, 480, 480, 280));
+        collisionBounds.clear();
 
-        // Ngôi nhà trên cùng bên trái
-        collisionBounds.add(new Rectangle(350, 150, 290, 220));
+        // --- TƯỜNG BAO QUANH ---
+        // Kích thước map: 50 * 32 = 1600 pixels
+        // Tường trên (cao 2 tile)
+        collisionBounds.add(new Rectangle(0, 0, 1600, 64));
+        // Tường dưới (cao 2 tile, bắt đầu từ y = 48 * 32)
+        collisionBounds.add(new Rectangle(0, 1536, 1600, 64));
+        // Tường trái (rộng 2 tile)
+        collisionBounds.add(new Rectangle(0, 0, 64, 1600));
+        // Tường phải (rộng 2 tile, bắt đầu từ x = 48 * 32)
+        collisionBounds.add(new Rectangle(1536, 0, 64, 1600));
 
-        // Ngôi nhà trên cùng bên phải
-        collisionBounds.add(new Rectangle(1280, 220, 290, 220));
+        // --- CÁC NGÔI NHÀ ---
+        // Ngôi nhà trên cùng bên trái (bắt đầu từ tile (8, 5))
+        collisionBounds.add(new Rectangle(256, 160, 320, 256));
 
-        // Ngôi nhà dưới cùng bên phải
-        collisionBounds.add(new Rectangle(1180, 760, 290, 220));
+        // Ngôi nhà trên cùng bên phải (bắt đầu từ tile (32, 8))
+        collisionBounds.add(new Rectangle(1024, 256, 320, 256));
 
-        // Tường bao quanh
-        collisionBounds.add(new Rectangle(0, 0, 2048, 80)); // Tường trên
-        collisionBounds.add(new Rectangle(0, 1160, 2048, 80)); // Tường dưới
-        collisionBounds.add(new Rectangle(0, 0, 80, 1200)); // Tường trái
-        collisionBounds.add(new Rectangle(1980, 0, 68, 1200));
+        // Ngôi nhà lớn ở giữa (bắt đầu từ tile (19, 21))
+        collisionBounds.add(new Rectangle(608, 672, 448, 320));
+
+        // Ngôi nhà dưới cùng bên phải (bắt đầu từ tile (35, 34))
+        collisionBounds.add(new Rectangle(1120, 1088, 320, 256));
     }
     public boolean isColliding(Rectangle bounds) {
         for (Rectangle collisionBox : collisionBounds) {

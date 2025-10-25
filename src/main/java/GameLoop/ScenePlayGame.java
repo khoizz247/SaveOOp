@@ -41,7 +41,7 @@ public class ScenePlayGame {
     }
 
     private void initObject() {
-        myBlock = new MyBlock(70, 70, 4);
+        myBlock = new MyBlock(70, 8, 4);
         mainCharacter = new MainCharacter();
         //npc = new NPC(350, 450, 350); // vị trí và kích thước NPC
 
@@ -72,10 +72,12 @@ public class ScenePlayGame {
                             isIngame = false;
                             level ++;
                             resetObject();
+                            mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 1000);
                         }
                         if (listBalls.getNumOfBalls() == 0) {
                             isIngame = false;
                             resetObject();
+                            mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 1000);
                         }
                     } else {
                         updateInLoppy();
@@ -100,6 +102,7 @@ public class ScenePlayGame {
 
     //Xu li di chuyen nhan vat
     private void updateInLoppy() {
+        // manageNPC sẽ cập nhật tất cả NPC
         manageNPC.update(System.nanoTime());
 
         boolean isW = pressedKeys.contains(KeyCode.W);
@@ -107,7 +110,6 @@ public class ScenePlayGame {
         boolean isS = pressedKeys.contains(KeyCode.S);
         boolean isD = pressedKeys.contains(KeyCode.D);
 
-        // Nếu không có phím nào được nhấn hoặc các phím đối nghịch được nhấn, nhân vật đứng yên
         if (!(isA || isD || isW || isS) || (isA && isD) || (isW && isS)) {
             mainCharacter.setRunning(false);
         } else {
@@ -116,36 +118,29 @@ public class ScenePlayGame {
             double currentX = mainCharacter.getxOnMap();
             double currentY = mainCharacter.getyOnMap();
             double speed = mainCharacter.getSpeed();
-            double diagonalSpeed = speed * Math.sin(Math.toRadians(45)); // Tốc độ khi đi chéo
+            double diagonalSpeed = speed * Math.sin(Math.toRadians(45));
 
             double dx = 0;
             double dy = 0;
 
-            // Tính toán vector di chuyển (dx, dy)
             if (isW) dy -= (isA || isD) ? diagonalSpeed : speed;
             if (isS) dy += (isA || isD) ? diagonalSpeed : speed;
             if (isA) dx -= (isW || isS) ? diagonalSpeed : speed;
             if (isD) dx += (isW || isS) ? diagonalSpeed : speed;
 
-            // Cập nhật hướng nhìn của nhân vật
             if (isA && !isD) mainCharacter.setDirection(1);
             else if (isD && !isA) mainCharacter.setDirection(2);
             else if (isW && !isS) mainCharacter.setDirection(3);
             else if (isS && !isW) mainCharacter.setDirection(0);
 
-            // Tọa độ tiếp theo tiềm năng
             double nextX = currentX + dx;
             double nextY = currentY + dy;
 
-            // --- LOGIC KIỂM TRA VA CHẠM ---
-            // Định nghĩa hitbox cho nhân vật (có thể nhỏ hơn kích thước ảnh để trông thật hơn)
-            // Ví dụ: hitbox ở dưới chân nhân vật
             double hitboxWidth = mainCharacter.getSize() / 3;
             double hitboxHeight = mainCharacter.getSize() / 4;
             double hitboxOffsetX = (mainCharacter.getSize() - hitboxWidth) / 2;
-            double hitboxOffsetY = mainCharacter.getSize() - hitboxHeight - 5; // đặt hitbox ở dưới chân
+            double hitboxOffsetY = mainCharacter.getSize() - hitboxHeight - 5;
 
-            // Kiểm tra va chạm theo trục X
             Rectangle characterBoundsX = new Rectangle(
                     nextX + hitboxOffsetX,
                     currentY + hitboxOffsetY,
@@ -156,8 +151,6 @@ public class ScenePlayGame {
                 mainCharacter.setxOnMap(nextX);
             }
 
-            // Kiểm tra va chạm theo trục Y
-            // Sử dụng getxOnMap() đã được cập nhật để kiểm tra Y chính xác hơn khi trượt dọc tường
             Rectangle characterBoundsY = new Rectangle(
                     mainCharacter.getxOnMap() + hitboxOffsetX,
                     nextY + hitboxOffsetY,
@@ -171,8 +164,40 @@ public class ScenePlayGame {
 
         map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
 
-        if (pressedKeys.contains(KeyCode.ENTER)) {
-            isIngame = true;
+        // Xóa hoặc bình luận dòng kiểm tra phím ENTER
+        // if (pressedKeys.contains(KeyCode.ENTER)) {
+        //     isIngame = true;
+        // }
+
+        // --- LOGIC MỚI: KIỂM TRA VA CHẠM VỚI NPC ĐỂ VÀO GAME ---
+        // 1. Lấy hitbox của nhân vật chính
+        double playerHitboxWidth = mainCharacter.getSize() / 3;
+        double playerHitboxHeight = mainCharacter.getSize() / 2; // Cho hitbox cao hơn một chút để dễ va chạm
+        double playerHitboxOffsetX = (mainCharacter.getSize() - playerHitboxWidth) / 2;
+        double playerHitboxOffsetY = mainCharacter.getSize() / 2;
+
+        Rectangle playerBounds = new Rectangle(
+                mainCharacter.getxOnMap() + playerHitboxOffsetX,
+                mainCharacter.getyOnMap() + playerHitboxOffsetY,
+                playerHitboxWidth,
+                playerHitboxHeight
+        );
+
+        // 2. Lặp qua tất cả các NPC để kiểm tra va chạm
+        for (NPC npc : manageNPC.getNpcs()) {
+            // Lấy hitbox của NPC (có thể lấy toàn bộ kích thước của NPC)
+            Rectangle npcBounds = new Rectangle(
+                    npc.getxOnMap(),
+                    npc.getyOnMap(),
+                    npc.getSize(),
+                    npc.getSize()
+            );
+
+            // 3. Nếu hitbox của nhân vật giao với hitbox của NPC
+            if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
+                isIngame = true; // Vào game!
+                break; // Thoát khỏi vòng lặp ngay khi tìm thấy một va chạm
+            }
         }
     }
 
@@ -248,5 +273,6 @@ public class ScenePlayGame {
     public void quitToMainGame() {
         isIngame = false;   // quay lại màn hình RPG
         running = true;     // đảm bảo vòng lặp tiếp tục chạy
+        mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 100);
     }
 }

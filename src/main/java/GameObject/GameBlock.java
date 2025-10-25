@@ -17,7 +17,7 @@ public class GameBlock extends Block{
     }
 
     public GameBlock(double x, double y, int typeBlock) {
-        super(x, y, 90, 30);
+        super(x, y, 90, 20);
         this.graphic = LoadImage.getBlock();
         this.typeBlock = typeBlock;
         this.durability = typeBlock;

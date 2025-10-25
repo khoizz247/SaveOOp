@@ -8,7 +8,7 @@ public class ManageNPC {
 
     public ManageNPC() {
         //Khoi tao cac NPC
-        npcs.add(new NPC(350, 450, 100));
+        npcs.add(new NPC(780, 480, 300));
     }
     public void update(long now) {
         for (NPC npc : npcs) {

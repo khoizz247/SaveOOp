@@ -9,11 +9,14 @@ public class NPC extends Character {
     private int frameIndex = 0;
     private long lastFrameTime = 0;
 
-    public NPC(double x, double y, double size) {
+    private int arkanoidLevel; // Màn Arkanoid tương ứng với NPC này
+    private boolean isDefeated = false; // Trạng thái đã bị đánh bại hay chưa
+
+    public NPC(double x, double y, double size, int arkanoidLevel) {
         setxOnMap(x);
         setyOnMap(y);
         setSize(size);
-
+        this.arkanoidLevel = arkanoidLevel;
         idleFrames = LoadImage.getNpcIdle(); // lấy chuỗi ảnh idle
     }
 
@@ -30,5 +33,17 @@ public class NPC extends Character {
         double yOnScreen = getyOnMap() + map.getyOnScreen();
 
         gc.drawImage(idleFrames[frameIndex], xOnScreen, yOnScreen, getSize(), getSize());
+    }
+
+    public int getArkanoidLevel() {
+        return arkanoidLevel;
+    }
+
+    public boolean isDefeated() {
+        return isDefeated;
+    }
+
+    public void setDefeated(boolean defeated) {
+        isDefeated = defeated;
     }
 }

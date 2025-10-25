@@ -10,6 +10,7 @@ public class Map {
     private double yOnScreen;
 
     Image map1;
+    Image map2;
     Image nowMap;
 
     public Map(double xCharOnMap, double yCharOnMap, double charSize) {
@@ -17,6 +18,7 @@ public class Map {
         this.yOnScreen = GameApplication.HEIGHT / 2.0 - yCharOnMap - charSize / 2;
 
         this.map1 = LoadImage.getMap1();
+        this.map2 = LoadImage.getMap1(); // test voi map 1
         this.nowMap = map1;
     }
 
@@ -44,5 +46,15 @@ public class Map {
     public void addMapOnScreen(GraphicsContext gc) {
         gc.drawImage(nowMap, xOnScreen, yOnScreen);
     }
+
+    public void setMapImage(int mapLevel) {
+        if (mapLevel == 1) {
+            this.nowMap = map1;
+        } else if (mapLevel == 2) {
+            this.nowMap = map2;
+        }
+        // Thêm các else if cho các map khác
+    }
 }
+
 

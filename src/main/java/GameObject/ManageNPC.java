@@ -16,13 +16,14 @@ public class ManageNPC {
         this.currentMapLevel = mapLevel;
 
         if (mapLevel == 1) {
-            // Map 1 có 1 NPC, tương ứng Arkanoid level 1
-            npcs.add(new NPC(780, 480, 300, 1));
-            // Thêm NPC khác nếu muốn
-            // npcs.add(new NPC(200, 600, 300, 2)); // Ví dụ NPC dùng Arkanoid level 2
+
+            npcs.add(new NPC(20*32, 37*32, 250, 1,1));
+
         } else if (mapLevel == 2) {
-            // map 2
+
+            npcs.add(new NPC(23*16, 9*16, 70, 2, 2));
         } else if  (mapLevel == 3) {
+            npcs.add(new NPC(241, -15, 300, 3, 3));
         }
     }
 
@@ -36,7 +37,7 @@ public class ManageNPC {
 
     public void render(GraphicsContext gc, Map map) {
         for (NPC npc : npcs) {
-            if (!npc.isDefeated()) { // --- THAY ĐỔI ---
+            if (!npc.isDefeated()) {
                 npc.render(gc, map);
             }
         }
@@ -47,13 +48,13 @@ public class ManageNPC {
     }
 
     public boolean allNpcsDefeated() {
-        if (npcs.isEmpty()) return true; // Không có NPC cũng tính là đã thắng
+        if (npcs.isEmpty()) return true;
         for (NPC npc : npcs) {
             if (!npc.isDefeated()) {
-                return false; // Còn ít nhất 1 NPC chưa bị đánh bại
+                return false;
             }
         }
-        return true; // Tất cả đã bị đánh bại
+        return true;
     }
 
 }

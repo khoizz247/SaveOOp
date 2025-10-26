@@ -1,7 +1,9 @@
 package LoadResource;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import java.util.Objects;
 
 public class LoadImage {
@@ -20,14 +22,27 @@ public class LoadImage {
     private static Image map2;
     private static Image map3;
 
-    private static Image[] npcIdle;
-
-    public static Image[] getNpcIdle() {
-        return npcIdle;
+    private static Image[] npcMap1Idle; // NPC Map 1
+    private static Image[] npcMap2Idle;  // NPC Map 2
+    private static Image[] npcMap3Idle;  // NPC Map 3
+    public static Image[] getNpcDemonIdle() {
+        return npcMap1Idle;
     }
 
-    private static void loadNpcImage() {
-        npcIdle = loadCharFrame("/Image/NPC/demon_idle_%d.png", 6); // ví dụ có 8 frame
+    public static Image[] getNpcMap2Idle() {
+        return npcMap2Idle;
+    }
+
+    public static Image[] getNpcMap3Idle() {
+        return npcMap3Idle;
+    }
+
+
+
+    private static void loadNpcImages() {
+        npcMap3Idle = loadCharFrame("/Image/NPC/npc_map3_idle_%d.png", 6);
+        npcMap1Idle = loadCharFrame("/Image/NPC/idle_000%d.png", 8);
+        npcMap2Idle = loadCharFrame("/Image/NPC/map2_%d.png", 4);
     }
 
     public static Image[] getIdleAhead() {
@@ -101,7 +116,7 @@ public class LoadImage {
 
     public static void loadAllImage() {
         loadCharImage();
-        loadNpcImage();
+        loadNpcImages();
         map1 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map1.png")));
         map2 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map2.png")));
         map3 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map3.png")));

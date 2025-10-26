@@ -22,8 +22,8 @@ public class MainCharacter extends Character {
     private final Image[] runRight;
 
     public MainCharacter() {
-        super.setxOnMap(200);
-        super.setyOnMap(200);
+        super.setxOnMap(21*32);
+        super.setyOnMap(48*32);
 
         this.idleAhead = LoadImage.getIdleAhead();
         this.idleBehind = LoadImage.getIdleBehind();
@@ -103,10 +103,9 @@ public class MainCharacter extends Character {
             }
         }
         gc.drawImage(currentAnimation[state / frameSkip],
-                map.characterDrawX,  // <-- SỬA LẠI
-                map.characterDrawY,  // <-- SỬA LẠI
+                map.characterDrawX,
+                map.characterDrawY,
                 getSize(), getSize());
-        // --- (Hết thay đổi) ---
 
         state ++;
     }

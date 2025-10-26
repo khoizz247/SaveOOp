@@ -7,6 +7,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.shape.Rectangle;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,13 +24,14 @@ public class ScenePlayGame {
     private ManageBall listBalls;
     private MainCharacter mainCharacter;
     private Map map;
-    //private NPC npc;
+
 
     private ManageNPC manageNPC;
     private ManageMap manageMap;
-
-    private NPC currentOpponent = null; // Theo dõi NPC đang giao chiến
-    private int currentMapLevel = 1; // Theo dõi map RPG hiện tại
+    private double preBattleX;
+    private double preBattleY;
+    private NPC currentOpponent = null;
+    private int currentMapLevel = 1;
 
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -75,20 +77,22 @@ public class ScenePlayGame {
                             isIngame = false;
 
                             if (currentOpponent != null) {
-                                currentOpponent.setDefeated(true); // Đánh dấu NPC đã bị hạ
-                                currentOpponent = null; // Xóa NPC đang giao chiến
+                                currentOpponent.setDefeated(true);
+                                currentOpponent = null;
                             }
-                            // Không reset vội, chỉ di chuyển nhân vật ra
-                            mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 50); // Lùi ra 1 chút
-                            // --- (Hết) ---
+
+                            mainCharacter.setxOnMap(preBattleX);
+                            mainCharacter.setyOnMap(preBattleY);
+
                         }
                         if (listBalls.getNumOfBalls() == 0) {
                             // --- LOGIC THUA ARKAOID ---
                             isIngame = false;
-                            resetObject(); // Reset lại màn Arkanoid
-                            // Lùi nhân vật ra
-                            mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 50);
-                            // --- (Hết) ---
+                            resetObject();
+
+                            mainCharacter.setxOnMap(preBattleX);
+                            mainCharacter.setyOnMap(preBattleY);
+
                         }
                     } else {
                         updateInLoppy();
@@ -161,18 +165,18 @@ public class ScenePlayGame {
                     hitboxHeight
             );
             if (!manageMap.isColliding(characterBoundsX)) {
-                mainCharacter.setxOnMap(nextX); // <-- CẬP NHẬT VỊ TRÍ X
+                mainCharacter.setxOnMap(nextX);
             }
 
             // 2. Kiểm tra va chạm TƯỜNG theo trục Y
             Rectangle characterBoundsY = new Rectangle(
-                    mainCharacter.getxOnMap() + hitboxOffsetX, // Dùng X đã được cập nhật (hoặc chưa)
+                    mainCharacter.getxOnMap() + hitboxOffsetX,
                     nextY + hitboxOffsetY,
                     hitboxWidth,
                     hitboxHeight
             );
             if (!manageMap.isColliding(characterBoundsY)) {
-                mainCharacter.setyOnMap(nextY); // <-- CẬP NHẬT VỊ TRÍ Y
+                mainCharacter.setyOnMap(nextY);
             }
         }
 
@@ -180,9 +184,6 @@ public class ScenePlayGame {
         // Cập nhật vị trí camera (bản đồ) dựa trên vị trí MỚI của nhân vật
         map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
 
-        // ---
-        // CÁC KIỂM TRA VA CHẠM KHÁC (PORTAL, NPC)
-        // ---
 
         double playerHitboxWidth = mainCharacter.getSize() / 3;
         double playerHitboxHeight = mainCharacter.getSize() / 2; // Hitbox cao hơn
@@ -197,7 +198,6 @@ public class ScenePlayGame {
         );
 
         // --- LOGIC: KIỂM TRA VA CHẠM VỚI PORTAL ---
-        // (Sử dụng `playerBounds` thay vì `currentBounds` để dễ va chạm hơn)
         int portalIndex = manageMap.getCollidingPortalIndex(playerBounds);
         if (portalIndex != -1) {
             if (manageNPC.allNpcsDefeated()) {
@@ -209,32 +209,32 @@ public class ScenePlayGame {
                 if (currentMapLevel == 1) {
                     if (portalIndex == 0) {
                         nextMap = 2;
-                        nextX = 750;
-                        nextY = 550;
+                        nextX = 25 * 16;
+                        nextY = 48 * 16;
                     }
                 } else if (currentMapLevel == 2) {
                     if (portalIndex == 0) {
                         nextMap = 3;
                         // --- SỬA TỌA ĐỘ SPAWN CỦA MAP 3 ---
-                        nextX = 200; // Đặt ở vị trí nhỏ, trong map
-                        nextY = 200; // Đặt ở vị trí nhỏ, trong map
-                        // --- (Hết) ---
+                        nextX = 25 * 16;
+                        nextY = 45 * 16;
+
                     } else if (portalIndex == 1) {
                         nextMap = 1;
-                        nextX = 750;
-                        nextY = 100;
+                        nextX = 21 * 32;
+                        nextY = 49 * 32;
                     }
                 } else if (currentMapLevel == 3) {
                     if (portalIndex == 0) {
                         nextMap = 2;
-                        nextX = 750;
-                        nextY = 100;
+                        nextX = 25 * 16;
+                        nextY = 48 * 16;
                     }
                 }
 
                 // Nếu `nextMap` đã được set
                 if (nextMap != -1) {
-                    // ... (code tải map giữ nguyên) ...
+
                     currentMapLevel = nextMap;
                     System.out.println("Chuyển sang map " + currentMapLevel);
                     manageMap.loadMap(currentMapLevel);
@@ -242,19 +242,30 @@ public class ScenePlayGame {
                     map.setMapImage(currentMapLevel);
                     mainCharacter.setxOnMap(nextX);
                     mainCharacter.setyOnMap(nextY);
+                    map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
+                    // Tính lại hitbox dựa trên vị trí MỚI của player
+                    playerBounds = new Rectangle(
+                            mainCharacter.getxOnMap() + playerHitboxOffsetX,
+                            mainCharacter.getyOnMap() + playerHitboxOffsetY,
+                            playerHitboxWidth,
+                            playerHitboxHeight);
                 }
 
             } else {
-                // ... (code đẩy lùi nhân vật giữ nguyên) ...
+                if (mainCharacter.getyOnMap() < 800) {
+                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 20);
+                } else {
+                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() - 20);
+                }
+
             }
         }
-        // --- (Hết logic portal) ---
 
 
         // --- LOGIC VA CHẠM VỚI NPC ---
-        // (Dùng lại `playerBounds` đã tính ở trên)
+
         for (NPC npc : manageNPC.getNpcs()) {
-            // ... (code va chạm NPC giữ nguyên) ...
+
             if (npc.isDefeated()) continue;
 
             Rectangle npcBounds = new Rectangle(
@@ -265,6 +276,12 @@ public class ScenePlayGame {
             );
 
             if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
+
+
+                this.preBattleX = mainCharacter.getxOnMap();
+                this.preBattleY = mainCharacter.getyOnMap();
+
+
                 isIngame = true;
                 currentOpponent = npc;
                 level = npc.getArkanoidLevel();
@@ -341,12 +358,13 @@ public class ScenePlayGame {
     }
 
     public boolean isInArkanoid() {
-        return isIngame; // true = đang trong mini game bắn bóng
+        return isIngame;
     }
 
     public void quitToMainGame() {
         isIngame = false;   // quay lại màn hình RPG
         running = true;     // đảm bảo vòng lặp tiếp tục chạy
-        mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 100);
+        mainCharacter.setxOnMap(preBattleX);
+        mainCharacter.setyOnMap(preBattleY);
     }
 }

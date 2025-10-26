@@ -11,7 +11,7 @@ public class Block {
     private double width;
     private double height;
 
-    //Image graphic;
+
 
     public Block() {
 
@@ -57,7 +57,7 @@ public class Block {
     }
 
     public void addOnScene (GraphicsContext gc) {
-        //gc.drawImage(graphic, X, Y, width, height);
+
         gc.setFill(Color.RED);
         gc.fillRect(X, Y, width, height);
     }

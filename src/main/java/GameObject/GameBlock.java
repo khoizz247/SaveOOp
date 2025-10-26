@@ -13,8 +13,7 @@ public class GameBlock extends Block{
     private int durability;
     private int colorType;
     public GameBlock(int typeBlock) {
-        //this.graphic = LoadImage.getBlock();
-        //this.typeBlock = typeBlock;
+
         this.durability = typeBlock;
         Random rand = new Random();
         this.colorType = rand.nextInt(5);
@@ -23,13 +22,12 @@ public class GameBlock extends Block{
 
     public GameBlock(double x, double y, int typeBlock) {
         super(x, y, 90, 20);
-//        this.graphic = LoadImage.getBlock();
-//        this.typeBlock = typeBlock;
+
         this.durability = typeBlock;
         Random rand = new Random();
         this.colorType = rand.nextInt(5); // Số ngẫu nhiên từ 0 đến 4
 
-        // Lấy mảng hình ảnh tương ứng với màu ngẫu nhiên
+
         this.graphic = LoadImage.getBlockImages()[this.colorType];
     }
 

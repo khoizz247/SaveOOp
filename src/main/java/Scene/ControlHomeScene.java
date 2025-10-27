@@ -1,5 +1,6 @@
 package Scene;
 
+import LoadResource.LoadVideo;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -52,13 +53,23 @@ public class ControlHomeScene {
     private void startGame(ActionEvent event) {
         try {
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
-            Scene scene = new Scene(loader.load());
-            stage.setScene(scene);
+
+            // Gọi hàm phát video intro
+            LoadVideo.playIntroVideo(stage, () -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
+                    Scene scene = new Scene(loader.load());
+                    stage.setScene(scene);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     // Khi ấn "Setting"
     private void openSetting(ActionEvent event) {

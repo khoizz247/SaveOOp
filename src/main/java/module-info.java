@@ -4,6 +4,7 @@ module Scene {
     requires javafx.graphics;
     requires java.desktop;
     requires com.almasb.fxgl.core;
+    requires javafx.media;
 
     opens Scene to javafx.fxml;
     opens GameObject to javafx.fxml;

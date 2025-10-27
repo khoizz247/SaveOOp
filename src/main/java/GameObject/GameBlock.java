@@ -21,7 +21,7 @@ public class GameBlock extends Block{
     }
 
     public GameBlock(double x, double y, int typeBlock) {
-        super(x, y, 90, 20);
+        super(x, y, 70, 20);
 
         this.durability = typeBlock;
         Random rand = new Random();

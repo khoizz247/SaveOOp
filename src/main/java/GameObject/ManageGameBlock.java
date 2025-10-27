@@ -35,7 +35,7 @@ public class ManageGameBlock {
                 x = sc.nextInt();
                 y = sc.nextInt();
                 hard = sc.nextInt();
-                gameBlocks.add(new GameBlock((x - 1) * 100.0, 110 + (y - 1) * 25.0, hard));
+                gameBlocks.add(new GameBlock((x - 1) * 80.0, 110 + (y - 1) * 25.0, hard));
             }
             sc.close();
         } catch (FileNotFoundException e) {

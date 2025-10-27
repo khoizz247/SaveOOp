@@ -22,8 +22,8 @@ public class MainCharacter extends Character {
     private final Image[] runRight;
 
     public MainCharacter() {
-        super.setxOnMap(200);
-        super.setyOnMap(200);
+        super.setxOnMap(21*32);
+        super.setyOnMap(48*32);
 
         this.idleAhead = LoadImage.getIdleAhead();
         this.idleBehind = LoadImage.getIdleBehind();
@@ -67,7 +67,7 @@ public class MainCharacter extends Character {
     }
 
     //Render hoat anh nhan vat
-    public void addCharacterOnScreen(GraphicsContext gc) {
+    public void addCharacterOnScreen(GraphicsContext gc, Map map) {
         Image[] currentAnimation;
         int frameSkip;
         if (isRunning) {
@@ -103,8 +103,10 @@ public class MainCharacter extends Character {
             }
         }
         gc.drawImage(currentAnimation[state / frameSkip],
-                GameApplication.WIDTH / 2.0 - getSize() / 2,
-                GameApplication.HEIGHT / 2.0 - getSize() / 2, getSize(), getSize());
+                map.characterDrawX,
+                map.characterDrawY,
+                getSize(), getSize());
+
         state ++;
     }
 }

@@ -1,7 +1,9 @@
 package LoadResource;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import java.util.Objects;
 
 public class LoadImage {
@@ -14,19 +16,33 @@ public class LoadImage {
     private static Image[] runBehind;
     private static Image[] runLeft;
     private static Image[] runRight;
-
-    private static Image[] block;
+    private static Image[][] allBlocks;
 
     private static Image map1;
+    private static Image map2;
+    private static Image map3;
 
-    private static Image[] npcIdle;
-
-    public static Image[] getNpcIdle() {
-        return npcIdle;
+    private static Image[] npcMap1Idle; // NPC Map 1
+    private static Image[] npcMap2Idle;  // NPC Map 2
+    private static Image[] npcMap3Idle;  // NPC Map 3
+    public static Image[] getNpcDemonIdle() {
+        return npcMap1Idle;
     }
 
-    private static void loadNpcImage() {
-        npcIdle = loadCharFrame("/Image/NPC/demon_idle_%d.png", 6); // ví dụ có 8 frame
+    public static Image[] getNpcMap2Idle() {
+        return npcMap2Idle;
+    }
+
+    public static Image[] getNpcMap3Idle() {
+        return npcMap3Idle;
+    }
+
+
+
+    private static void loadNpcImages() {
+        npcMap3Idle = loadCharFrame("/Image/NPC/npc_map3_idle_%d.png", 6);
+        npcMap1Idle = loadCharFrame("/Image/NPC/idle_000%d.png", 8);
+        npcMap2Idle = loadCharFrame("/Image/NPC/map2_%d.png", 4);
     }
 
     public static Image[] getIdleAhead() {
@@ -65,8 +81,8 @@ public class LoadImage {
         return map1;
     }
 
-    public static Image[] getBlock() {
-        return block;
+    public static Image[][] getBlockImages() {
+        return allBlocks;
     }
 
     private static Image[] loadCharFrame(String format, int numOfFrame) {
@@ -90,11 +106,26 @@ public class LoadImage {
         runRight = loadCharFrame("/Image/MainChar/RunState/right/run_right_%d.png", 8);
     }
 
+    public static Image getMap3() {
+        return map3;
+    }
+
+    public static Image getMap2() {
+        return map2;
+    }
+
     public static void loadAllImage() {
         loadCharImage();
-        loadNpcImage();
-        map1 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/test1.png")));
-        block = loadCharFrame("/Image/Block/blue_block_%d.png", 3);
+        loadNpcImages();
+        map1 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map1.png")));
+        map2 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map2.png")));
+        map3 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map3.png")));
+        allBlocks = new Image[5][3]; // 5 màu, 3 trạng thái
+        allBlocks[0] = loadCharFrame("/Image/Block/blue_block_%d.png", 3);
+        allBlocks[1] = loadCharFrame("/Image/Block/green_block_%d.png", 3);
+        allBlocks[2] = loadCharFrame("/Image/Block/pink_block_%d.png", 3);
+        allBlocks[3] = loadCharFrame("/Image/Block/red_block_%d.png", 3);
+        allBlocks[4] = loadCharFrame("/Image/Block/yellow_block_%d.png", 3);
     }
 }
 

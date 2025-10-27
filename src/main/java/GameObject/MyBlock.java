@@ -11,7 +11,7 @@ public class MyBlock extends Block {
     }
 
     public MyBlock(double width, double height, double speed) {
-        super((GameApplication.WIDTH - width) / 2, 500, width, height);
+        super((GameApplication.WIDTH - width) / 2, 570, width, height);
         this.speed = speed;
     }
 

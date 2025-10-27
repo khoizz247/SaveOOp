@@ -7,6 +7,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.shape.Rectangle;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,10 +24,14 @@ public class ScenePlayGame {
     private ManageBall listBalls;
     private MainCharacter mainCharacter;
     private Map map;
-    //private NPC npc;
+
 
     private ManageNPC manageNPC;
     private ManageMap manageMap;
+    private double preBattleX;
+    private double preBattleY;
+    private NPC currentOpponent = null;
+    private int currentMapLevel = 1;
 
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -34,20 +39,19 @@ public class ScenePlayGame {
         canvas.setFocusTraversable(true);
         canvas.setOnKeyPressed(e -> pressedKeys.add(e.getCode()));
         canvas.setOnKeyReleased(e -> pressedKeys.remove(e.getCode()));
-
+        canvas.requestFocus();
         initObject();
 
         startLevel(gc, canvas);
     }
 
     private void initObject() {
-        myBlock = new MyBlock(70, 70, 4);
+        myBlock = new MyBlock(70, 8, 4);
         mainCharacter = new MainCharacter();
-        //npc = new NPC(350, 450, 350); // vị trí và kích thước NPC
-
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
         listBlocks = new ManageGameBlock();
         listBalls = new ManageBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
+
         manageNPC = new ManageNPC();
         manageMap = new ManageMap();
     }
@@ -69,13 +73,26 @@ public class ScenePlayGame {
                         updateInGame();
                         renderInGame(gc, canvas);
                         if (listBlocks.getNumberBlock() == 0) {
+                            // --- LOGIC THẮNG ARKAOID ---
                             isIngame = false;
-                            level ++;
-                            resetObject();
+
+                            if (currentOpponent != null) {
+                                currentOpponent.setDefeated(true);
+                                currentOpponent = null;
+                            }
+
+                            mainCharacter.setxOnMap(preBattleX);
+                            mainCharacter.setyOnMap(preBattleY);
+
                         }
                         if (listBalls.getNumOfBalls() == 0) {
+                            // --- LOGIC THUA ARKAOID ---
                             isIngame = false;
                             resetObject();
+
+                            mainCharacter.setxOnMap(preBattleX);
+                            mainCharacter.setyOnMap(preBattleY);
+
                         }
                     } else {
                         updateInLoppy();
@@ -100,6 +117,7 @@ public class ScenePlayGame {
 
     //Xu li di chuyen nhan vat
     private void updateInLoppy() {
+        // manageNPC sẽ cập nhật tất cả NPC
         manageNPC.update(System.nanoTime());
 
         boolean isW = pressedKeys.contains(KeyCode.W);
@@ -107,7 +125,6 @@ public class ScenePlayGame {
         boolean isS = pressedKeys.contains(KeyCode.S);
         boolean isD = pressedKeys.contains(KeyCode.D);
 
-        // Nếu không có phím nào được nhấn hoặc các phím đối nghịch được nhấn, nhân vật đứng yên
         if (!(isA || isD || isW || isS) || (isA && isD) || (isW && isS)) {
             mainCharacter.setRunning(false);
         } else {
@@ -116,36 +133,31 @@ public class ScenePlayGame {
             double currentX = mainCharacter.getxOnMap();
             double currentY = mainCharacter.getyOnMap();
             double speed = mainCharacter.getSpeed();
-            double diagonalSpeed = speed * Math.sin(Math.toRadians(45)); // Tốc độ khi đi chéo
+            double diagonalSpeed = speed * Math.sin(Math.toRadians(45));
 
             double dx = 0;
             double dy = 0;
 
-            // Tính toán vector di chuyển (dx, dy)
             if (isW) dy -= (isA || isD) ? diagonalSpeed : speed;
             if (isS) dy += (isA || isD) ? diagonalSpeed : speed;
             if (isA) dx -= (isW || isS) ? diagonalSpeed : speed;
             if (isD) dx += (isW || isS) ? diagonalSpeed : speed;
 
-            // Cập nhật hướng nhìn của nhân vật
             if (isA && !isD) mainCharacter.setDirection(1);
             else if (isD && !isA) mainCharacter.setDirection(2);
             else if (isW && !isS) mainCharacter.setDirection(3);
             else if (isS && !isW) mainCharacter.setDirection(0);
 
-            // Tọa độ tiếp theo tiềm năng
             double nextX = currentX + dx;
             double nextY = currentY + dy;
 
-            // --- LOGIC KIỂM TRA VA CHẠM ---
-            // Định nghĩa hitbox cho nhân vật (có thể nhỏ hơn kích thước ảnh để trông thật hơn)
-            // Ví dụ: hitbox ở dưới chân nhân vật
+            // Định nghĩa hitbox cho va chạm tường
             double hitboxWidth = mainCharacter.getSize() / 3;
             double hitboxHeight = mainCharacter.getSize() / 4;
             double hitboxOffsetX = (mainCharacter.getSize() - hitboxWidth) / 2;
-            double hitboxOffsetY = mainCharacter.getSize() - hitboxHeight - 5; // đặt hitbox ở dưới chân
+            double hitboxOffsetY = mainCharacter.getSize() - hitboxHeight - 5;
 
-            // Kiểm tra va chạm theo trục X
+            // 1. Kiểm tra va chạm TƯỜNG theo trục X
             Rectangle characterBoundsX = new Rectangle(
                     nextX + hitboxOffsetX,
                     currentY + hitboxOffsetY,
@@ -156,8 +168,7 @@ public class ScenePlayGame {
                 mainCharacter.setxOnMap(nextX);
             }
 
-            // Kiểm tra va chạm theo trục Y
-            // Sử dụng getxOnMap() đã được cập nhật để kiểm tra Y chính xác hơn khi trượt dọc tường
+            // 2. Kiểm tra va chạm TƯỜNG theo trục Y
             Rectangle characterBoundsY = new Rectangle(
                     mainCharacter.getxOnMap() + hitboxOffsetX,
                     nextY + hitboxOffsetY,
@@ -169,12 +180,117 @@ public class ScenePlayGame {
             }
         }
 
+
+        // Cập nhật vị trí camera (bản đồ) dựa trên vị trí MỚI của nhân vật
         map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
 
-        if (pressedKeys.contains(KeyCode.ENTER)) {
-            isIngame = true;
+
+        double playerHitboxWidth = mainCharacter.getSize() / 3;
+        double playerHitboxHeight = mainCharacter.getSize() / 2; // Hitbox cao hơn
+        double playerHitboxOffsetX = (mainCharacter.getSize() - playerHitboxWidth) / 2;
+        double playerHitboxOffsetY = mainCharacter.getSize() / 2; // Hitbox ở nửa dưới nhân vật
+
+        Rectangle playerBounds = new Rectangle(
+                mainCharacter.getxOnMap() + playerHitboxOffsetX,
+                mainCharacter.getyOnMap() + playerHitboxOffsetY,
+                playerHitboxWidth,
+                playerHitboxHeight
+        );
+
+        // --- LOGIC: KIỂM TRA VA CHẠM VỚI PORTAL ---
+        int portalIndex = manageMap.getCollidingPortalIndex(playerBounds);
+        if (portalIndex != -1) {
+            if (manageNPC.allNpcsDefeated()) {
+                // --- CHUYỂN MAP ---
+                int nextMap = -1;
+                double nextX = 800;
+                double nextY = 100;
+
+                if (currentMapLevel == 1) {
+                    if (portalIndex == 0) {
+                        nextMap = 2;
+                        nextX = 25 * 16;
+                        nextY = 48 * 16;
+                    }
+                } else if (currentMapLevel == 2) {
+                    if (portalIndex == 0) {
+                        nextMap = 3;
+                        // --- SỬA TỌA ĐỘ SPAWN CỦA MAP 3 ---
+                        nextX = 25 * 16;
+                        nextY = 45 * 16;
+
+                    } else if (portalIndex == 1) {
+                        nextMap = 1;
+                        nextX = 21 * 32;
+                        nextY = 49 * 32;
+                    }
+                } else if (currentMapLevel == 3) {
+                    if (portalIndex == 0) {
+                        nextMap = 2;
+                        nextX = 25 * 16;
+                        nextY = 48 * 16;
+                    }
+                }
+
+                // Nếu `nextMap` đã được set
+                if (nextMap != -1) {
+
+                    currentMapLevel = nextMap;
+                    System.out.println("Chuyển sang map " + currentMapLevel);
+                    manageMap.loadMap(currentMapLevel);
+                    manageNPC.loadNpcsForMap(currentMapLevel);
+                    map.setMapImage(currentMapLevel);
+                    mainCharacter.setxOnMap(nextX);
+                    mainCharacter.setyOnMap(nextY);
+                    map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
+                    // Tính lại hitbox dựa trên vị trí MỚI của player
+                    playerBounds = new Rectangle(
+                            mainCharacter.getxOnMap() + playerHitboxOffsetX,
+                            mainCharacter.getyOnMap() + playerHitboxOffsetY,
+                            playerHitboxWidth,
+                            playerHitboxHeight);
+                }
+
+            } else {
+                if (mainCharacter.getyOnMap() < 800) {
+                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 20);
+                } else {
+                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() - 20);
+                }
+
+            }
+        }
+
+
+        // --- LOGIC VA CHẠM VỚI NPC ---
+
+        for (NPC npc : manageNPC.getNpcs()) {
+
+            if (npc.isDefeated()) continue;
+
+            Rectangle npcBounds = new Rectangle(
+                    npc.getxOnMap(),
+                    npc.getyOnMap(),
+                    npc.getSize(),
+                    npc.getSize()
+            );
+
+            if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
+
+
+                this.preBattleX = mainCharacter.getxOnMap();
+                this.preBattleY = mainCharacter.getyOnMap();
+
+
+                isIngame = true;
+                currentOpponent = npc;
+                level = npc.getArkanoidLevel();
+                resetObject();
+                break;
+            }
         }
     }
+
 
     public void pause() {
         running = false;
@@ -196,7 +312,7 @@ public class ScenePlayGame {
     private void renderInLoppy(GraphicsContext gc, Canvas canvas) {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         map.addMapOnScreen(gc);
-        mainCharacter.addCharacterOnScreen(gc);
+        mainCharacter.addCharacterOnScreen(gc, map);
         // npc.render(gc, map); // <- Bỏ dòng này
         manageNPC.render(gc, map); // <- Thay bằng dòng này
     }
@@ -242,11 +358,13 @@ public class ScenePlayGame {
     }
 
     public boolean isInArkanoid() {
-        return isIngame; // true = đang trong mini game bắn bóng
+        return isIngame;
     }
 
     public void quitToMainGame() {
         isIngame = false;   // quay lại màn hình RPG
         running = true;     // đảm bảo vòng lặp tiếp tục chạy
+        mainCharacter.setxOnMap(preBattleX);
+        mainCharacter.setyOnMap(preBattleY);
     }
 }

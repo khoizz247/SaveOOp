@@ -7,6 +7,7 @@ public abstract class Character {
     private double yOnMap;
     private double size;
 
+
     public double getxOnMap() {
         return xOnMap;
     }

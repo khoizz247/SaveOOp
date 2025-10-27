@@ -185,7 +185,7 @@ public class ManageMap {
             collisionBounds.add(new Rectangle(47 * 16, 4 * 16, 3 * 16, 1 * 16));
         } else if (currentMapLevel == 3) {
             //map 3
-            collisionBounds.add(new Rectangle(0 * 16, 0 * 16, 50 * 16, 1 * 16));  // Trên
+            collisionBounds.add(new Rectangle(0 * 16, 0 * 16, 50 * 16, 2 * 16));  // Trên
             collisionBounds.add(new Rectangle(0 * 16, 0 * 16, 1 * 16, 50 * 16));  // Trái
             collisionBounds.add(new Rectangle(49 * 16, 0 * 16, 1 * 16, 50 * 16)); // Phải (sửa từ width 50 thành 1)
             collisionBounds.add(new Rectangle(0 * 16, 49 * 16, 23 * 16, 1 * 16)); // Dưới trái
@@ -232,9 +232,9 @@ public class ManageMap {
         } else if (currentMapLevel == 2) {
 
             portalBounds.add(new Rectangle(22*16, 4*16, 5*16, 2*16));
-
+            portalBounds.add(new Rectangle(23 * 16, 51 * 16,4 * 16 , 1 * 16 ));
         } else if (currentMapLevel == 3) {
-            portalBounds.add(new Rectangle(0, 0, 100, 10));
+            portalBounds.add(new Rectangle(23 * 16, 50 * 16,4 * 16 , 1 * 16 ));
         }
     }
 

@@ -14,6 +14,7 @@ import java.util.Set;
 public class ScenePlayGame {
     private final Set<KeyCode> pressedKeys = new HashSet<>();
     private AnimationTimer gameLoop;
+    private ManageBuff listBuffs;
 
     private boolean running = true;
     private int level = 1;
@@ -46,6 +47,7 @@ public class ScenePlayGame {
     }
 
     private void initObject() {
+        listBuffs = new ManageBuff();
         myBlock = new MyBlock(70, 8, 4);
         mainCharacter = new MainCharacter();
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
@@ -57,6 +59,7 @@ public class ScenePlayGame {
     }
 
     public void resetObject() {
+        listBuffs.resetBuff();
         myBlock.resetMyBlock();
         listBlocks.resetGameBlock(level);
         listBalls.resetBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
@@ -305,7 +308,8 @@ public class ScenePlayGame {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         myBlock.addOnScene(gc);
         listBlocks.addListOnScene(gc);
-        listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks());
+        listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks(), listBuffs);
+        listBuffs.addBuffOnScene(gc, myBlock, listBalls);
     }
 
     //Render man hinh sanh

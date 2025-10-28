@@ -17,7 +17,8 @@ public class Ball extends Circle{
         setDy((getDy() / length) * getSpeed());
     }
 
-    public void updateBall(MyBlock myBlock, List<GameBlock> blocks) {
+    public void updateBall(MyBlock myBlock, List<GameBlock> blocks, ManageBuff listBuffs) {
+
         setBallX(getBallX() + getDx());
         setBallY(getBallY() + getDy());
 
@@ -58,6 +59,8 @@ public class Ball extends Circle{
         if (collidedBlock != null) {
             collidedBlock.contactGameBlock(this);
             if (collidedBlock.handleBlock()) {
+                listBuffs.addBuff(collidedBlock.getX(), collidedBlock.getY(),
+                        collidedBlock.getWidth(), collidedBlock.getHeight(), "Clone Ball", this);
                 blocks.remove(collidedBlock);
             }
         }

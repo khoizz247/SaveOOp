@@ -1,11 +1,17 @@
 package GameObject;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.image.Image;
 import StartGame.GameApplication;
+import javafx.util.Duration;
 
 public class MyBlock extends Block {
     private double speed;
-
+    private double defaultWidth;
+    private double increasedWidth = 30;
+    private double maxBuffedTime = 5;
+    private Timeline currentBuff = null;
     public MyBlock(double speed) {
         this.speed = speed;
     }
@@ -33,5 +39,26 @@ public class MyBlock extends Block {
         } else if ((getX() < 0)) {
             setX(0);
         }
+    }
+
+    public void increaseWidth() {
+        if (currentBuff != null) {
+            currentBuff.stop();
+            currentBuff = null;
+        } else {
+            setX(getX() - increasedWidth / 2);
+            setWidth(defaultWidth + increasedWidth);
+        }
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.seconds(maxBuffedTime), e -> {
+                    setWidth(defaultWidth);
+                    setX(getX() + increasedWidth / 2);
+                    currentBuff = null;
+                })
+        );
+
+        currentBuff = timeline;
+        timeline.playFromStart();
     }
 }

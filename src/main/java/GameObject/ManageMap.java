@@ -31,7 +31,7 @@ public class ManageMap {
             // Tường cây trên 2: 25 0 25 1
             collisionBounds.add(new Rectangle(25 * 32, 0 * 32, 25 * 32, 1 * 32));
             // Tường cây phải: 49 0 2 49
-            collisionBounds.add(new Rectangle(49 * 32, 0 * 32, 2 * 32, 49 * 32));
+            collisionBounds.add(new Rectangle(48 * 32, 0 * 32, 2 * 32, 49 * 32));
             // Tường cây dưới 1: 0 49 19 1
             collisionBounds.add(new Rectangle(0 * 32, 48 * 32, 19 * 32, 2 * 32));
             // Tường cây dưới 2: 23 49 26 1

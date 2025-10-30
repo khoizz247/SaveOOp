@@ -233,68 +233,85 @@ public class ScenePlayGame {
         );
 
         // --- LOGIC: KIỂM TRA VA CHẠM VỚI PORTAL ---
+        // --- BẮT ĐẦU THAY THẾ TỪ ĐÂY ---
+
+        // --- LOGIC: KIỂM TRA VA CHẠM VỚI PORTAL ---
         int portalIndex = manageMap.getCollidingPortalIndex(playerBounds);
         if (portalIndex != -1) {
-            if (manageNPC.allNpcsDefeated()) {
-                // --- CHUYỂN MAP ---
-                int nextMap = -1;
-                double nextX = 800;
-                double nextY = 100;
 
-                if (currentMapLevel == 1) {
-                    if (portalIndex == 0) {
+            int nextMap = -1;
+            double nextX = 800;
+            double nextY = 100;
+            boolean needsNpcCheck = false;
+            boolean doPushBack = false;
+
+            if (currentMapLevel == 1) {
+                if (portalIndex == 0) { // Từ 1 -> 2 (Đi tới)
+                    needsNpcCheck = true; // Cần check
+                    if (manageNPC.allNpcsDefeated()) {
                         nextMap = 2;
                         nextX = 25 * 16;
-                        nextY = 48 * 16;
+                        nextY = 47 * 16;
+                    } else {
+                        doPushBack = true; // Chưa hạ quái, đẩy lùi
                     }
-                } else if (currentMapLevel == 2) {
-                    if (portalIndex == 0) {
+                }
+            } else if (currentMapLevel == 2) {
+                if (portalIndex == 0) { // Từ 2 -> 3 (Đi tới)
+                    needsNpcCheck = true; // Cần check
+                    if (manageNPC.allNpcsDefeated()) {
                         nextMap = 3;
-                        // --- SỬA TỌA ĐỘ SPAWN CỦA MAP 3 ---
                         nextX = 25 * 16;
                         nextY = 45 * 16;
-
-                    } else if (portalIndex == 1) {
-                        nextMap = 1;
-                        nextX = 21 * 32;
-                        nextY = 49 * 32;
+                    } else {
+                        doPushBack = true;
                     }
-                } else if (currentMapLevel == 3) {
-                    if (portalIndex == 0) {
-                        nextMap = 2;
-                        nextX = 25 * 16;
-                        nextY = 48 * 16;
-                    }
+                } else if (portalIndex == 1) { // Từ 2 -> 1 (Quay về)
+                    needsNpcCheck = false;
+                    nextMap = 1;
+                    nextX = 21 * 32;
+                    nextY = 3 * 32;
                 }
-
-                // Nếu `nextMap` đã được set
-                if (nextMap != -1) {
-
-                    currentMapLevel = nextMap;
-                    System.out.println("Chuyển sang map " + currentMapLevel);
-                    manageMap.loadMap(currentMapLevel);
-                    manageNPC.loadNpcsForMap(currentMapLevel);
-                    map.setMapImage(currentMapLevel);
-                    mainCharacter.setxOnMap(nextX);
-                    mainCharacter.setyOnMap(nextY);
-                    map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
-                    // Tính lại hitbox dựa trên vị trí MỚI của player
-                    playerBounds = new Rectangle(
-                            mainCharacter.getxOnMap() + playerHitboxOffsetX,
-                            mainCharacter.getyOnMap() + playerHitboxOffsetY,
-                            playerHitboxWidth,
-                            playerHitboxHeight);
+            } else if (currentMapLevel == 3) {
+                if (portalIndex == 0) { // Từ 3 -> 2 (Quay về)
+                    needsNpcCheck = false;
+                    nextMap = 2;
+                    nextX =  26 * 16;
+                    nextY = 4 * 16;
                 }
+            }
 
-            } else {
-                if (mainCharacter.getyOnMap() < 800) {
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 20);
+            // --- Xử lý kết quả ---
+            if (nextMap != -1) {
+                // --- CHUYỂN MAP ---
+                currentMapLevel = nextMap;
+                System.out.println("Chuyển sang map " + currentMapLevel);
+                manageMap.loadMap(currentMapLevel);
+                manageNPC.loadNpcsForMap(currentMapLevel);
+                map.setMapImage(currentMapLevel);
+                mainCharacter.setxOnMap(nextX);
+                mainCharacter.setyOnMap(nextY);
+                map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
+                // Tính lại hitbox dựa trên vị trí MỚI của player
+                playerBounds = new Rectangle(
+                        mainCharacter.getxOnMap() + playerHitboxOffsetX,
+                        mainCharacter.getyOnMap() + playerHitboxOffsetY,
+                        playerHitboxWidth,
+                        playerHitboxHeight);
+
+            } else if (doPushBack) {
+                // --- ĐẨY LÙI NHÂN VẬT (VÌ CHƯA HẠ HẾT QUÁI) ---
+
+                if (mainCharacter.getyOnMap() > 400) { // Nếu portal ở nửa dưới map
+                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() - 20); // Đẩy LÊN
                 } else {
-                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() - 20);
+                    mainCharacter.setyOnMap(mainCharacter.getyOnMap() + 20); // Đẩy XUỐNG
                 }
-
             }
         }
+
+
+
 
 
         // --- LOGIC VA CHẠM VỚI NPC ---
@@ -355,8 +372,8 @@ public class ScenePlayGame {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         map.addMapOnScreen(gc);
         mainCharacter.addCharacterOnScreen(gc, map);
-        // npc.render(gc, map); // <- Bỏ dòng này
-        manageNPC.render(gc, map); // <- Thay bằng dòng này
+
+        manageNPC.render(gc, map);
     }
 
     public boolean isIngame() {
@@ -370,17 +387,25 @@ public class ScenePlayGame {
     public void restartRPG(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        // reset đối tượng
-        mainCharacter = new MainCharacter();
+
+        mainCharacter = new MainCharacter(); // Reset nhân vật về vị trí mặc định (Map 1)
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
         pressedKeys.clear();
 
-        // reset trạng thái
-        isIngame = false;
-        level = 1;
-        running = true;
 
-        // chạy lại vòng lặp
+        isIngame = false;
+        running = true;
+        level = 1;
+        currentMapLevel = 1;
+
+
+        manageMap.loadMap(currentMapLevel);
+        manageNPC.loadNpcsForMap(currentMapLevel);
+        map.setMapImage(currentMapLevel);
+        map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
+
+
+
         if (gameLoop != null) gameLoop.stop();
         startLevel(gc, canvas);
     }
@@ -392,7 +417,7 @@ public class ScenePlayGame {
         pressedKeys.clear();
 
         isIngame = true;
-        level = 1;
+        //level = 1;
         running = true;
 
         if (gameLoop != null) gameLoop.stop();

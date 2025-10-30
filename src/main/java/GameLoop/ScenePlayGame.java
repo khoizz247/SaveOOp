@@ -291,7 +291,6 @@ public class ScenePlayGame {
         }
     }
 
-
     public void pause() {
         running = false;
     }

@@ -12,8 +12,8 @@ public class GameBlock extends Block{
     private int typeBlock;
     private int durability;
     private int colorType;
-    public GameBlock(int typeBlock) {
 
+    public GameBlock(int typeBlock) {
         this.durability = typeBlock;
         Random rand = new Random();
         this.colorType = rand.nextInt(5);
@@ -30,8 +30,6 @@ public class GameBlock extends Block{
 
         this.graphic = LoadImage.getBlockImages()[this.colorType];
     }
-
-
 
     public int getDurability() {
         return durability;

@@ -91,6 +91,7 @@ public class ScenePlayGame {
                         if (listBlocks.getNumberBlock() == 0) {
                             // --- LOGIC THẮNG ARKAOID ---
                             isIngame = false;
+                            existingCoins += ManageBuff.extraCoins;
 
                             if (currentOpponent != null) {
                                 currentOpponent.setDefeated(true);
@@ -101,7 +102,7 @@ public class ScenePlayGame {
                             mainCharacter.setyOnMap(preBattleY);
 
                         }
-                        if (listBalls.getNumOfBalls() == 0) {
+                        if (listBalls.getNumOfBalls() == 0 && !isAiming) {
                             // --- LOGIC THUA ARKAOID ---
                             isIngame = false;
                             resetObject();

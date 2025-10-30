@@ -34,6 +34,11 @@ public class ScenePlayGame {
     private NPC currentOpponent = null;
     private int currentMapLevel = 1;
 
+    private Ball aimingBall;             //Thêm Ball ngắm bắn.
+    private boolean isAiming = true;     //Biến xác nhận ngắm bắn.
+    private boolean isBuffBullet = false;//Biến ngắm bắn lúc có buff.
+    private int existingCoins;           //Thêm thuộc tính xu.
+
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -52,17 +57,25 @@ public class ScenePlayGame {
         mainCharacter = new MainCharacter();
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
         listBlocks = new ManageGameBlock();
-        listBalls = new ManageBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
+        listBalls = new ManageBall();
+        listBuffs = new ManageBuff();
+        aimingBall = new Ball(myBlock.getX() + myBlock.getWidth() / 2, myBlock.getY() - 6, 6, 1, 1, 0);
+
+        level = 1;
+        existingCoins =  0;
 
         manageNPC = new ManageNPC();
         manageMap = new ManageMap();
     }
 
     public void resetObject() {
-        listBuffs.resetBuff();
         myBlock.resetMyBlock();
         listBlocks.resetGameBlock(level);
-        listBalls.resetBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
+        listBalls.resetBall();
+        listBuffs.resetBuff();
+        isAiming = true;
+        isBuffBullet = false;
+        System.out.println("xu hien co: " + existingCoins);
     }
 
     //Vong lap chinh
@@ -109,6 +122,8 @@ public class ScenePlayGame {
 
     //Xu li di chuyen cua gach
     private void updateInGame() {
+
+        // --- Logic chung (Luôn chạy) ---
         if (pressedKeys.contains(KeyCode.LEFT)) {
             myBlock.setX(myBlock.getX() - myBlock.getSpeed());
         }
@@ -116,6 +131,22 @@ public class ScenePlayGame {
             myBlock.setX(myBlock.getX() + myBlock.getSpeed());
         }
         myBlock.collisionHandling();
+
+        // --- Logic theo trạng thái ---
+        if (isAiming || isBuffBullet) {
+            aimingBall.inPaddle(myBlock.getX(), myBlock.getWidth());
+            if (pressedKeys.contains(KeyCode.SPACE)) {
+                if (isAiming) {
+                    listBalls.addNewBall(aimingBall.getBallX(), aimingBall.getBallY());
+                    isAiming = false;
+                }
+                if (isBuffBullet) {
+                    listBalls.buffBullet(aimingBall.getBallX(), aimingBall.getBallY());
+                    isBuffBullet = false;
+                }
+
+            }
+        }
     }
 
     //Xu li di chuyen nhan vat
@@ -309,7 +340,14 @@ public class ScenePlayGame {
         myBlock.addOnScene(gc);
         listBlocks.addListOnScene(gc);
         listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks(), listBuffs);
-        listBuffs.addBuffOnScene(gc, myBlock, listBalls);
+        Boolean b = listBuffs.addBuffOnScene(gc, myBlock, listBalls);
+        if (!isBuffBullet) {
+            isBuffBullet = b;
+        }
+        if (isAiming || isBuffBullet) {
+            //aimingArrow.draw(gc);
+            aimingBall.addOnScene(gc);
+        }
     }
 
     //Render man hinh sanh

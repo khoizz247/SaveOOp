@@ -19,6 +19,7 @@ public class MyBlock extends Block {
     public MyBlock(double width, double height, double speed) {
         super((GameApplication.WIDTH - width) / 2, 570, width, height);
         this.speed = speed;
+        this.defaultWidth = width;
     }
 
     public void resetMyBlock() {

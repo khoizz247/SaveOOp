@@ -5,9 +5,19 @@ import java.awt.*;
 import java.util.List;
 
 public class Ball extends Circle{
+    boolean isthrough = false;
+    private double relativeX = -1;
 
     public Ball(double ballX, double ballY, double radius, double speed, double dx, double dy) {
         super(ballX, ballY, radius, speed, dx, dy);
+    }
+
+    public boolean isIsthrough() {
+        return isthrough;
+    }
+
+    public void setIsthrough(boolean isthrough) {
+        this.isthrough = isthrough;
     }
 
     public void setDirection() {
@@ -33,6 +43,8 @@ public class Ball extends Circle{
         if (getBallY() - getRadius() <= 0) {
             setBallY(getRadius());
             setDy(-getDy());
+            isthrough = false;
+            setSpeed(3);
         }
 
         // Va cham paddle
@@ -60,11 +72,36 @@ public class Ball extends Circle{
             collidedBlock.contactGameBlock(this);
             if (collidedBlock.handleBlock()) {
                 listBuffs.addBuff(collidedBlock.getX(), collidedBlock.getY(),
-                        collidedBlock.getWidth(), collidedBlock.getHeight(), "Clone Ball", this);
+                        collidedBlock.getWidth(), collidedBlock.getHeight(), "Bullet", this);
                 blocks.remove(collidedBlock);
             }
         }
 
         setDirection();
+    }
+
+    public void inPaddle(double xPaddle, double widthPaddle) {
+        setDirection();
+        if (this.relativeX == -1) {
+            this.relativeX = widthPaddle / 2;
+        }
+
+        // 2. Cập nhật vị trí trượt TƯƠNG ĐỐI
+        this.relativeX += this.getDx();
+
+        // 3. Kiểm tra biên (so với cạnh của paddle)
+        double leftEdgeRelative = getRadius();
+        double rightEdgeRelative = widthPaddle - getRadius();
+
+        if (this.relativeX > rightEdgeRelative) {
+            this.relativeX = rightEdgeRelative;
+            this.setDx(-this.getDx()); // Đổi hướng
+        } else if (this.relativeX < leftEdgeRelative) {
+            this.relativeX = leftEdgeRelative;
+            this.setDx(-this.getDx());// Đổi hướng
+        }
+
+        // 4. Đặt vị trí TUYỆT ĐỐI (vị trí paddle + vị trí tương đối)
+        setBallX(xPaddle + this.relativeX);
     }
 }

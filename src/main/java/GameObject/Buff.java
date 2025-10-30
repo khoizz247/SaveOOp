@@ -16,21 +16,25 @@ public class Buff extends Circle{
         this.ballCreateBuff = ballCreateBuff;
     }
 
-    public boolean updateBuff (MyBlock myBlock, ManageBall manageBall) {
+    public String updateBuff (MyBlock paddle, ManageBall manageBall) {
         setBallX(getBallX() + getDx());
         setBallY(getBallY() + getDy());
 
-        if (checkContactToBlock(myBlock.getX(), myBlock.getY(), myBlock.getWidth(), myBlock.getHeight())) {
+        if (checkContactToBlock(paddle.getX(), paddle.getY(), paddle.getWidth(), paddle.getHeight())) {
             if (buffType.equals("Add 3 balls")) {
-                manageBall.addBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
+                manageBall.addBall(paddle.getX(), paddle.getY(), paddle.getWidth());
             } else if (buffType.equals("Clone Ball")) {
                 manageBall.buffCloneBall(ballCreateBuff);
             } else if (buffType.equals("Increase Paddle Width")) {
-                myBlock.increaseWidth();
+                paddle.increaseWidth();
+            } else if (buffType.equals("Bullet")) {
+                return "AIMING";
+            } else if (buffType.equals("Coin")) {
+                ManageBuff.extraCoins++;
             }
-            return true;
+            return "HIT";
         }
-        return false;
+        return "NOHIT";
     }
 
     @Override
@@ -41,7 +45,12 @@ public class Buff extends Circle{
             gc.setFill(Color.BLUE);
         } else if (buffType.equals("Increase Paddle Width")) {
             gc.setFill(Color.RED);
+        } else if (buffType.equals("Bullet")) {
+            gc.setFill(Color.YELLOW);
+        } else if (buffType.equals("Coin")) {
+            gc.setFill(Color.PINK);
         }
+
         gc.fillOval(getBallX() - getRadius(), getBallY() - getRadius(),
                 getRadius() * 2, getRadius() * 2);
     }

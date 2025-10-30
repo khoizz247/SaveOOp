@@ -9,17 +9,16 @@ import java.util.List;
 public class ManageBall {
     private List<Ball> balls = new ArrayList<>();
 
-    public ManageBall(double xPaddle, double yPaddle, double widthPaddle) {
-        balls.add(new Ball(xPaddle + widthPaddle / 2, yPaddle - 6 - 1, 6, 3, 0, -2));
+    public ManageBall() {
+
     }
 
     public int getNumOfBalls() {
         return balls.size();
     }
 
-    public void resetBall(double xPaddle, double yPaddle, double widthPaddle) {
+    public void resetBall() {
         balls.clear();
-        balls.add(new Ball(xPaddle + widthPaddle / 2, yPaddle - 6 - 1, 6, 3, 0, -2));
     }
 
     public void addListOnScene(GraphicsContext gc, MyBlock myBlock,
@@ -40,6 +39,10 @@ public class ManageBall {
         balls.add(new Ball(xPaddle + widthPaddle / 2, yPaddle - 6 - 1, 6, 3, 1, -1));
     }
 
+    public void addNewBall(double ballX, double ballY) {
+        balls.add(new Ball(ballX, ballY, 6, 3, 0, 1));
+    }
+
     //Buff bóng phân thân.
     public void buffCloneBall(Ball ballCreateBuff) {
         if (ballCreateBuff.isInScreen()) {
@@ -47,5 +50,11 @@ public class ManageBall {
                     ballCreateBuff.getRadius(), ballCreateBuff.getSpeed(),
                     - ballCreateBuff.getDx(), -ballCreateBuff.getDy()));
         }
+    }
+
+    public void buffBullet(double ballX, double ballY) {
+        Ball newBall = new Ball(ballX, ballY, 6, 10,0, 1);
+        newBall.setIsthrough(true);
+        balls.add(newBall);
     }
 }

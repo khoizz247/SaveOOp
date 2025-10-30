@@ -11,7 +11,7 @@ public class Circle {
     private double speed = 4;
     private double dx = 0;
     private double dy = -2;
-    private boolean isInScreen;
+    boolean isInScreen;
 
     public Circle(double ballX, double ballY, double radius, double speed, double dx, double dy) {
         this.ballX = ballX;
@@ -75,6 +75,14 @@ public class Circle {
         if (value < min) return min;
         if (value > max) return max;
         return value;
+    }
+
+    public boolean isInScreen() {
+        return isInScreen;
+    }
+
+    public void setInScreen(boolean inScreen) {
+        isInScreen = inScreen;
     }
 
     public boolean checkContactToBlock(double xBlock, double yBlock, double widthBlock, double heightBlock) {

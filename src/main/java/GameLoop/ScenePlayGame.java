@@ -14,6 +14,7 @@ import java.util.Set;
 public class ScenePlayGame {
     private final Set<KeyCode> pressedKeys = new HashSet<>();
     private AnimationTimer gameLoop;
+    private ManageBuff listBuffs;
 
     private boolean running = true;
     private int level = 1;
@@ -33,6 +34,11 @@ public class ScenePlayGame {
     private NPC currentOpponent = null;
     private int currentMapLevel = 1;
 
+    private Ball aimingBall;             //Thêm Ball ngắm bắn.
+    private boolean isAiming = true;     //Biến xác nhận ngắm bắn.
+    private boolean isBuffBullet = false;//Biến ngắm bắn lúc có buff.
+    private int existingCoins;           //Thêm thuộc tính xu.
+
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -46,11 +52,17 @@ public class ScenePlayGame {
     }
 
     private void initObject() {
+        listBuffs = new ManageBuff();
         myBlock = new MyBlock(70, 8, 4);
         mainCharacter = new MainCharacter();
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
         listBlocks = new ManageGameBlock();
-        listBalls = new ManageBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
+        listBalls = new ManageBall();
+        listBuffs = new ManageBuff();
+        aimingBall = new Ball(myBlock.getX() + myBlock.getWidth() / 2, myBlock.getY() - 6, 6, 1, 1, 0);
+
+        level = 1;
+        existingCoins =  0;
 
         manageNPC = new ManageNPC();
         manageMap = new ManageMap();
@@ -59,7 +71,11 @@ public class ScenePlayGame {
     public void resetObject() {
         myBlock.resetMyBlock();
         listBlocks.resetGameBlock(level);
-        listBalls.resetBall(myBlock.getX(), myBlock.getY(), myBlock.getWidth());
+        listBalls.resetBall();
+        listBuffs.resetBuff();
+        isAiming = true;
+        isBuffBullet = false;
+        System.out.println("xu hien co: " + existingCoins);
     }
 
     //Vong lap chinh
@@ -75,6 +91,7 @@ public class ScenePlayGame {
                         if (listBlocks.getNumberBlock() == 0) {
                             // --- LOGIC THẮNG ARKAOID ---
                             isIngame = false;
+                            existingCoins += ManageBuff.extraCoins;
 
                             if (currentOpponent != null) {
                                 currentOpponent.setDefeated(true);
@@ -85,7 +102,7 @@ public class ScenePlayGame {
                             mainCharacter.setyOnMap(preBattleY);
 
                         }
-                        if (listBalls.getNumOfBalls() == 0) {
+                        if (listBalls.getNumOfBalls() == 0 && !isAiming) {
                             // --- LOGIC THUA ARKAOID ---
                             isIngame = false;
                             resetObject();
@@ -106,6 +123,8 @@ public class ScenePlayGame {
 
     //Xu li di chuyen cua gach
     private void updateInGame() {
+
+        // --- Logic chung (Luôn chạy) ---
         if (pressedKeys.contains(KeyCode.LEFT)) {
             myBlock.setX(myBlock.getX() - myBlock.getSpeed());
         }
@@ -113,6 +132,22 @@ public class ScenePlayGame {
             myBlock.setX(myBlock.getX() + myBlock.getSpeed());
         }
         myBlock.collisionHandling();
+
+        // --- Logic theo trạng thái ---
+        if (isAiming || isBuffBullet) {
+            aimingBall.inPaddle(myBlock.getX(), myBlock.getWidth());
+            if (pressedKeys.contains(KeyCode.SPACE)) {
+                if (isAiming) {
+                    listBalls.addNewBall(aimingBall.getBallX(), aimingBall.getBallY());
+                    isAiming = false;
+                }
+                if (isBuffBullet) {
+                    listBalls.buffBullet(aimingBall.getBallX(), aimingBall.getBallY());
+                    isBuffBullet = false;
+                }
+
+            }
+        }
     }
 
     //Xu li di chuyen nhan vat
@@ -308,7 +343,6 @@ public class ScenePlayGame {
         }
     }
 
-
     public void pause() {
         running = false;
     }
@@ -322,7 +356,15 @@ public class ScenePlayGame {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         myBlock.addOnScene(gc);
         listBlocks.addListOnScene(gc);
-        listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks());
+        listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks(), listBuffs);
+        Boolean b = listBuffs.addBuffOnScene(gc, myBlock, listBalls);
+        if (!isBuffBullet) {
+            isBuffBullet = b;
+        }
+        if (isAiming || isBuffBullet) {
+            //aimingArrow.draw(gc);
+            aimingBall.addOnScene(gc);
+        }
     }
 
     //Render man hinh sanh

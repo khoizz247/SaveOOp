@@ -2,10 +2,12 @@ package GameLoop;
 
 import GameObject.*;
 
+import StartGame.GameApplication;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.util.HashSet;
@@ -17,7 +19,7 @@ public class ScenePlayGame {
     private ManageBuff listBuffs;
 
     private boolean running = true;
-    private int level = 1;
+    private int level;
     boolean isIngame = false;
 
     private MyBlock myBlock;
@@ -61,11 +63,12 @@ public class ScenePlayGame {
         listBuffs = new ManageBuff();
         aimingBall = new Ball(myBlock.getX() + myBlock.getWidth() / 2, myBlock.getY() - 6, 6, 1, 1, 0);
 
-        level = 1;
-        existingCoins =  0;
+        level = ReadWriteData.getLevel();
+        existingCoins = ReadWriteData.getExistingCoins();
 
         manageNPC = new ManageNPC();
         manageMap = new ManageMap();
+        System.out.println("khoi tao: " + level);
     }
 
     public void resetObject() {
@@ -76,6 +79,13 @@ public class ScenePlayGame {
         isAiming = true;
         isBuffBullet = false;
         System.out.println("xu hien co: " + existingCoins);
+        System.out.println("Reset: " + level);
+    }
+
+    public void saveData() {
+        ReadWriteData.setLevel(level);
+        ReadWriteData.setExistingCoins(existingCoins);
+        ReadWriteData.saveGameData();
     }
 
     //Vong lap chinh
@@ -85,13 +95,16 @@ public class ScenePlayGame {
             @Override
             public void handle(long now) {
                 if (running) {
+                    System.out.println("level: " + level);
                     if (isIngame) {
                         updateInGame();
                         renderInGame(gc, canvas);
                         if (listBlocks.getNumberBlock() == 0) {
                             // --- LOGIC THẮNG ARKAOID ---
                             isIngame = false;
+                            level++;
                             existingCoins += ManageBuff.extraCoins;
+                            resetObject();
 
                             if (currentOpponent != null) {
                                 currentOpponent.setDefeated(true);
@@ -365,6 +378,8 @@ public class ScenePlayGame {
             //aimingArrow.draw(gc);
             aimingBall.addOnScene(gc);
         }
+        gc.setFill(Color.color(0, 0 , 0 , 0.5));
+        gc.fillRect(0, 0, GameApplication.WIDTH, 65);
     }
 
     //Render man hinh sanh

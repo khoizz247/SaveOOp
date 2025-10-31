@@ -40,8 +40,8 @@ public class Ball extends Circle{
             setBallX(GameApplication.WIDTH - getRadius());
             setDx(-getDx());
         }
-        if (getBallY() - getRadius() <= 0) {
-            setBallY(getRadius());
+        if (getBallY() - getRadius() <= 65) {
+            setBallY(getRadius() + 65);
             setDy(-getDy());
             isthrough = false;
             setSpeed(3);

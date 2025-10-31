@@ -104,6 +104,7 @@ public class ControlGameScene {
     // Hàm xử lý khi ấn nút "Quit Game" game RPG
     private void quitGameRPG() {
         try {
+            scenePlayGame.saveData();
             Stage stage = (Stage) QuitButton.getScene().getWindow();
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/Scene/menu-view.fxml"));
             javafx.scene.Parent root = loader.load();

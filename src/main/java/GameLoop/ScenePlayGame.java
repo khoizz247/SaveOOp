@@ -31,6 +31,8 @@ public class ScenePlayGame {
     private ManageMap manageMap;
     private double preBattleX;
     private double preBattleY;
+    private double firstBattleX = 21*32;
+    private double firstBattleY = 48*32;
     private NPC currentOpponent = null;
     private int currentMapLevel = 1;
 
@@ -105,16 +107,16 @@ public class ScenePlayGame {
                         if (listBalls.getNumOfBalls() == 0 && !isAiming) {
                             // --- LOGIC THUA ARKAOID ---
                             isIngame = false;
-                            resetObject();
 
-                            mainCharacter.setxOnMap(preBattleX);
-                            mainCharacter.setyOnMap(preBattleY);
+
+                            mainCharacter.setxOnMap(firstBattleX + 20);
+                            mainCharacter.setyOnMap(firstBattleY + 20);
 
                         }
                     } else {
                         updateInLoppy();
                         renderInLoppy(gc, canvas);
-                    }
+                                            }
                 }
             }
         };
@@ -252,6 +254,9 @@ public class ScenePlayGame {
                         nextMap = 2;
                         nextX = 25 * 16;
                         nextY = 47 * 16;
+                        firstBattleX =  25 * 16;
+                        firstBattleY = 46 * 16;
+
                     } else {
                         doPushBack = true; // Chưa hạ quái, đẩy lùi
                     }
@@ -263,6 +268,8 @@ public class ScenePlayGame {
                         nextMap = 3;
                         nextX = 25 * 16;
                         nextY = 45 * 16;
+                        firstBattleX = 25 * 16;
+                        firstBattleY = 44 * 16;
                     } else {
                         doPushBack = true;
                     }
@@ -271,6 +278,8 @@ public class ScenePlayGame {
                     nextMap = 1;
                     nextX = 21 * 32;
                     nextY = 3 * 32;
+                    firstBattleX = 21 * 32;
+                    firstBattleY = 3 * 32;
                 }
             } else if (currentMapLevel == 3) {
                 if (portalIndex == 0) { // Từ 3 -> 2 (Quay về)
@@ -278,6 +287,8 @@ public class ScenePlayGame {
                     nextMap = 2;
                     nextX =  26 * 16;
                     nextY = 4 * 16;
+                    firstBattleX =  26 * 16;
+                    firstBattleY = 4 * 16;
                 }
             }
 
@@ -431,7 +442,7 @@ public class ScenePlayGame {
     public void quitToMainGame() {
         isIngame = false;   // quay lại màn hình RPG
         running = true;     // đảm bảo vòng lặp tiếp tục chạy
-        mainCharacter.setxOnMap(preBattleX);
-        mainCharacter.setyOnMap(preBattleY);
+        mainCharacter.setxOnMap(firstBattleX);
+        mainCharacter.setyOnMap(firstBattleY);
     }
 }

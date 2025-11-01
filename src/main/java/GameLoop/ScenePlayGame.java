@@ -2,10 +2,12 @@ package GameLoop;
 
 import GameObject.*;
 
+import StartGame.GameApplication;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.util.HashSet;
@@ -17,7 +19,7 @@ public class ScenePlayGame {
     private ManageBuff listBuffs;
 
     private boolean running = true;
-    private int level = 1;
+    private int level;
     boolean isIngame = false;
 
     private MyBlock myBlock;
@@ -35,7 +37,7 @@ public class ScenePlayGame {
     private double firstBattleY = 48*32;
     private NPC currentOpponent = null;
     private int currentMapLevel = 1;
-
+    private int currentBattleLevel;
     private Ball aimingBall;             //Thêm Ball ngắm bắn.
     private boolean isAiming = true;     //Biến xác nhận ngắm bắn.
     private boolean isBuffBullet = false;//Biến ngắm bắn lúc có buff.
@@ -63,47 +65,108 @@ public class ScenePlayGame {
         listBuffs = new ManageBuff();
         aimingBall = new Ball(myBlock.getX() + myBlock.getWidth() / 2, myBlock.getY() - 6, 6, 1, 1, 0);
 
-        level = 1;
-        existingCoins =  0;
+        level = ReadWriteData.getLevel();
+        existingCoins = ReadWriteData.getExistingCoins();
+        this.currentMapLevel = ReadWriteData.getCurrentMapLevel();
+
+        // 2. Lấy vị trí đã lưu
+        double startX = ReadWriteData.getPlayerX();
+        double startY = ReadWriteData.getPlayerY();
+
+        // 3. Khởi tạo nhân vật TRƯỚC, SAU ĐÓ set vị trí
+        mainCharacter = new MainCharacter();
+        mainCharacter.setxOnMap(startX);
+        mainCharacter.setyOnMap(startY);
+
+        // 4. Khởi tạo map dựa trên vị trí MỚI
+        map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
+
+        // 5. Tải đúng map và NPC cho map đó
+        manageMap = new ManageMap();
+        manageMap.loadMap(this.currentMapLevel); // Tải va chạm
 
         manageNPC = new ManageNPC();
-        manageMap = new ManageMap();
+        manageNPC.loadNpcsForMap(this.currentMapLevel); // Tải NPC
+
+        map.setMapImage(this.currentMapLevel);
+        System.out.println("khoi tao: " + level);
     }
 
     public void resetObject() {
         myBlock.resetMyBlock();
-        listBlocks.resetGameBlock(level);
+        listBlocks.resetGameBlock(currentBattleLevel);
         listBalls.resetBall();
         listBuffs.resetBuff();
         isAiming = true;
         isBuffBullet = false;
         System.out.println("xu hien co: " + existingCoins);
+        System.out.println("Reset: " + level);
+    }
+
+    public void saveData() {
+        ReadWriteData.setLevel(level);
+        ReadWriteData.setExistingCoins(existingCoins);
+        ReadWriteData.setCurrentMapLevel(this.currentMapLevel);
+        ReadWriteData.setPlayerX(mainCharacter.getxOnMap());
+        ReadWriteData.setPlayerY(mainCharacter.getyOnMap());
+        ReadWriteData.saveGameData();
+
     }
 
     //Vong lap chinh
     private void startLevel(GraphicsContext gc, Canvas canvas) {
-        listBlocks.resetGameBlock(level);
+
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if (running) {
+                    System.out.println("level: " + level); // Dòng này bạn có thể giữ hoặc xóa
                     if (isIngame) {
                         updateInGame();
                         renderInGame(gc, canvas);
+
+                        // --- BẮT ĐẦU PHẦN SỬA ---
                         if (listBlocks.getNumberBlock() == 0) {
-                            // --- LOGIC THẮNG ARKAOID ---
+                            // --- LOGIC THẮNG ARKAOID (ĐÃ SỬA) ---
                             isIngame = false;
-                            existingCoins += ManageBuff.extraCoins;
 
                             if (currentOpponent != null) {
-                                currentOpponent.setDefeated(true);
+                                // Kiểm tra xem NPC này đã bị hạ gục TRƯỚC ĐÓ chưa
+                                boolean wasAlreadyDefeated = ReadWriteData.isNpcDefeated(
+                                        currentMapLevel,
+                                        currentOpponent.getArkanoidLevel()
+                                );
+
+                                if (!wasAlreadyDefeated) {
+                                    // ---- LẦN ĐẦU HẠ GỤC ----
+                                    System.out.println("Lần đầu hạ gục NPC, tăng level!");
+                                    level++; // Chỉ tăng level tổng
+                                    existingCoins += ManageBuff.extraCoins; // Chỉ cộng xu thưởng
+
+                                    // Đánh dấu nó đã bị hạ gục
+                                    currentOpponent.setDefeated(true);
+                                    ReadWriteData.addDefeatedNpc(
+                                            currentMapLevel,
+                                            currentOpponent.getArkanoidLevel()
+                                    );
+                                } else {
+                                    // ---- ĐÁNH LẠI NPC CŨ (nếu có) ----
+                                    System.out.println("Đánh lại NPC cũ, không tăng level.");
+                                    // (Code của bạn sẽ không cho phép điều này
+                                    // vì NPC đã defeated sẽ không trigger combat,
+                                    // nhưng đây là cách phòng hờ an toàn)
+                                }
+
                                 currentOpponent = null;
                             }
 
+                            resetObject(); // resetObject() vẫn được gọi
                             mainCharacter.setxOnMap(preBattleX);
                             mainCharacter.setyOnMap(preBattleY);
-
+                            // --- KẾT THÚC LOGIC SỬA ---
                         }
+                        // --- KẾT THÚC PHẦN SỬA ---
+
                         if (listBalls.getNumOfBalls() == 0 && !isAiming) {
                             // --- LOGIC THUA ARKAOID ---
                             isIngame = false;
@@ -116,7 +179,7 @@ public class ScenePlayGame {
                     } else {
                         updateInLoppy();
                         renderInLoppy(gc, canvas);
-                                            }
+                    }
                 }
             }
         };
@@ -309,6 +372,11 @@ public class ScenePlayGame {
                         mainCharacter.getyOnMap() + playerHitboxOffsetY,
                         playerHitboxWidth,
                         playerHitboxHeight);
+                System.out.println("Đã chuyển map, tự động lưu game...");
+                ReadWriteData.setCurrentMapLevel(currentMapLevel);
+                ReadWriteData.setPlayerX(mainCharacter.getxOnMap());
+                ReadWriteData.setPlayerY(mainCharacter.getyOnMap());
+                ReadWriteData.saveGameData();
 
             } else if (doPushBack) {
                 // --- ĐẨY LÙI NHÂN VẬT (VÌ CHƯA HẠ HẾT QUÁI) ---
@@ -347,7 +415,7 @@ public class ScenePlayGame {
 
                 isIngame = true;
                 currentOpponent = npc;
-                level = npc.getArkanoidLevel();
+                this.currentBattleLevel = npc.getArkanoidLevel();
                 resetObject();
                 break;
             }
@@ -376,6 +444,8 @@ public class ScenePlayGame {
             //aimingArrow.draw(gc);
             aimingBall.addOnScene(gc);
         }
+        gc.setFill(Color.color(0, 0 , 0 , 0.5));
+        gc.fillRect(0, 0, GameApplication.WIDTH, 65);
     }
 
     //Render man hinh sanh
@@ -409,7 +479,7 @@ public class ScenePlayGame {
         level = 1;
         currentMapLevel = 1;
 
-
+        ReadWriteData.clearAllNpcData();
         manageMap.loadMap(currentMapLevel);
         manageNPC.loadNpcsForMap(currentMapLevel);
         map.setMapImage(currentMapLevel);

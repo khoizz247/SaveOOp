@@ -1,4 +1,5 @@
 package GameObject;
+import GameLoop.ReadWriteData;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;
@@ -24,6 +25,12 @@ public class ManageNPC {
             npcs.add(new NPC(23*16, 9*16, 70, 2, 2));
         } else if  (mapLevel == 3) {
             npcs.add(new NPC(241, -15, 300, 3, 3));
+        }
+        for (NPC npc : npcs) {
+            boolean daBiHaGuc = ReadWriteData.isNpcDefeated(mapLevel, npc.getArkanoidLevel());
+            if (daBiHaGuc) {
+                npc.setDefeated(true);
+            }
         }
     }
 

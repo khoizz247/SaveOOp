@@ -1,0 +1,7 @@
+Level: 3
+ExistingCoins: 0
+CurrentMapLevel: 3
+PlayerX: 420.0
+PlayerY: 724.0
+Defeated: 1-1
+Defeated: 2-2

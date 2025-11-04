@@ -52,6 +52,29 @@ public class ControlGameScene {
         addHoverEffect(ResumeButton);
         addHoverEffect(RestartButton);
         addHoverEffect(QuitButton);
+
+        Platform.runLater(() -> {
+            Stage stage = (Stage) canvas.getScene().getWindow();
+            if (stage != null) {
+                stage.setOnCloseRequest(event -> {
+                    System.out.println("Phát hiện đóng cửa sổ... Đang lưu game!");
+
+                    if (scenePlayGame != null) {
+                        // Chỉ lưu khi đang ở RPG, không lưu giữa trận Arkanoid
+                        // để tránh lỗi trạng thái
+                        if (!scenePlayGame.isIngame()) {
+                            scenePlayGame.saveData();
+                        } else {
+                            System.out.println("Đang trong trận Arkanoid, không lưu.");
+                        }
+                    }
+
+                    // Đóng ứng dụng an toàn
+                    Platform.exit();
+                    System.exit(0);
+                });
+            }
+        });
     }
 
     private void togglePause() {

@@ -1,6 +1,8 @@
 package Scene;
 
 import GameLoop.ScenePlayGame;
+import GameObject.GameSession;
+import LoadResource.GameStats;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -67,6 +69,7 @@ public class ControlGameScene {
                         } else {
                             System.out.println("Đang trong trận Arkanoid, không lưu.");
                         }
+                        GameStats.saveStats();
                     }
 
                     // Đóng ứng dụng an toàn
@@ -90,7 +93,6 @@ public class ControlGameScene {
             canvas.setEffect(null);
         }
     }
-
 
     @FXML
     private Button QuitButton;
@@ -128,6 +130,7 @@ public class ControlGameScene {
     private void quitGameRPG() {
         try {
             scenePlayGame.saveData();
+            GameStats.saveStats();
             Stage stage = (Stage) QuitButton.getScene().getWindow();
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/Scene/menu-view.fxml"));
             javafx.scene.Parent root = loader.load();

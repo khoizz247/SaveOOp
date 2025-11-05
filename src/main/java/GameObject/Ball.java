@@ -27,7 +27,7 @@ public class Ball extends Circle{
         setDy((getDy() / length) * getSpeed());
     }
 
-    public void updateBall(MyBlock myBlock, List<GameBlock> blocks, ManageBuff listBuffs) {
+    public void updateBall(MyBlock myBlock, List<GameBlock> blocks, ManageBuff listBuffs, GameSession gameSession) {
 
         setBallX(getBallX() + getDx());
         setBallY(getBallY() + getDy());
@@ -73,6 +73,7 @@ public class Ball extends Circle{
                 collidedBlock.contactGameBlock(this);
             }
             if (collidedBlock.handleBlock()) {
+                gameSession.addScore(collidedBlock.getTypeBlock());
                 listBuffs.addBuff(collidedBlock.getX(), collidedBlock.getY(),
                         collidedBlock.getWidth(), collidedBlock.getHeight(), "Bullet", this);
                 blocks.remove(collidedBlock);

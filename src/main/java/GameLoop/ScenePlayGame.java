@@ -2,6 +2,7 @@ package GameLoop;
 
 import GameObject.*;
 
+import LoadResource.GameStats;
 import StartGame.GameApplication;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
@@ -27,7 +28,7 @@ public class ScenePlayGame {
     private ManageBall listBalls;
     private MainCharacter mainCharacter;
     private Map map;
-
+    private GameSession gameSession;
 
     private ManageNPC manageNPC;
     private ManageMap manageMap;
@@ -45,7 +46,7 @@ public class ScenePlayGame {
 
     private float blockSpawnTimer = 0.0f;
     private long lastFrameTime = 0;
-    private static final float BLOCK_SPAWN_TIME = 15.0f;
+    private static final float BLOCK_SPAWN_TIME = 2.0f;
 
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -68,6 +69,7 @@ public class ScenePlayGame {
         listBalls = new ManageBall();
         listBuffs = new ManageBuff();
         aimingBall = new Ball(myBlock.getX() + myBlock.getWidth() / 2, myBlock.getY() - 6, 6, 1, 1, 0);
+        gameSession = new GameSession();
 
         level = ReadWriteData.getLevel();
         existingCoins = ReadWriteData.getExistingCoins();
@@ -81,6 +83,9 @@ public class ScenePlayGame {
         mainCharacter = new MainCharacter();
         mainCharacter.setxOnMap(startX);
         mainCharacter.setyOnMap(startY);
+
+        firstBattleX = startX;
+        firstBattleY = startY;
 
         // 4. Khởi tạo map dựa trên vị trí MỚI
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
@@ -104,6 +109,7 @@ public class ScenePlayGame {
         isAiming = true;
         isBuffBullet = false;
         lastFrameTime = 0;
+        gameSession.reset();
 
         System.out.println("xu hien co: " + existingCoins);
         System.out.println("Reset: " + level);
@@ -198,10 +204,11 @@ public class ScenePlayGame {
                         if (listBalls.getNumOfBalls() == 0 && !isAiming) {
                             if (level >= 4) {
                                 existingCoins += ManageBuff.extraCoins;
+                                GameStats.addGameSession(gameSession);
                             }
                             isIngame = false;
                             mainCharacter.setxOnMap(preBattleX);
-                            mainCharacter.setyOnMap(preBattleY + 40); // Đẩy lùi 40 pixel
+                            mainCharacter.setyOnMap(preBattleY + 40);
                         }
                     } else {
                         updateInLoppy();
@@ -218,6 +225,7 @@ public class ScenePlayGame {
         if (!isAiming) {
             if (level >= 4) {
                 blockSpawnTimer += deltaTime;
+                gameSession.update(deltaTime);
             }
         }
         // --- Logic chung (Luôn chạy) ---
@@ -250,8 +258,11 @@ public class ScenePlayGame {
         }
         if (listBlocks.getStateAboutToLose() == 4) {
             existingCoins += ManageBuff.extraCoins;
+            GameStats.addGameSession(gameSession);
             isIngame = false;
             resetObject();
+            mainCharacter.setxOnMap(preBattleX);
+            mainCharacter.setyOnMap(preBattleY + 40);
         }
     }
 
@@ -465,17 +476,20 @@ public class ScenePlayGame {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         myBlock.addOnScene(gc);
         listBlocks.addListOnScene(gc, level);
-        listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks(), listBuffs);
+        listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks(), listBuffs, gameSession);
         Boolean b = listBuffs.addBuffOnScene(gc, myBlock, listBalls);
         if (!isBuffBullet) {
             isBuffBullet = b;
         }
         if (isAiming || isBuffBullet) {
-            //aimingArrow.draw(gc);
             aimingBall.addOnScene(gc);
         }
         gc.setFill(Color.color(0, 0, 0, 0.5));
         gc.fillRect(0, 0, GameApplication.WIDTH, 65);
+
+        if (level >= 4) {
+            gameSession.renderClock(gc, listBlocks.getStateAboutToLose());
+        }
     }
 
     //Render man hinh sanh
@@ -498,11 +512,9 @@ public class ScenePlayGame {
     public void restartRPG(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-
         mainCharacter = new MainCharacter(); // Reset nhân vật về vị trí mặc định (Map 1)
         map = new Map(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
         pressedKeys.clear();
-
 
         isIngame = false;
         running = true;

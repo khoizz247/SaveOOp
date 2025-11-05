@@ -22,9 +22,9 @@ public class ManageBall {
     }
 
     public void addListOnScene(GraphicsContext gc, MyBlock myBlock,
-                               List<GameBlock> blocks, ManageBuff listBuffs) {
+                               List<GameBlock> blocks, ManageBuff listBuffs, GameSession gameSession) {
         for (int i = 0; i < balls.size(); i++) {
-            balls.get(i).updateBall(myBlock, blocks, listBuffs);
+            balls.get(i).updateBall(myBlock, blocks, listBuffs, gameSession);
             balls.get(i).addOnScene(gc);
             if (balls.get(i).checkOutScreen()) {
                 balls.remove(i);

@@ -25,6 +25,9 @@ public class LoadImage {
     private static Image[] npcMap1Idle; // NPC Map 1
     private static Image[] npcMap2Idle;  // NPC Map 2
     private static Image[] npcMap3Idle;  // NPC Map 3
+
+    private static Image[] line;
+
     public static Image[] getNpcDemonIdle() {
         return npcMap1Idle;
     }
@@ -35,14 +38,6 @@ public class LoadImage {
 
     public static Image[] getNpcMap3Idle() {
         return npcMap3Idle;
-    }
-
-
-
-    private static void loadNpcImages() {
-        npcMap3Idle = loadCharFrame("/Image/NPC/npc_map3_idle_%d.png", 6);
-        npcMap1Idle = loadCharFrame("/Image/NPC/idle_000%d.png", 8);
-        npcMap2Idle = loadCharFrame("/Image/NPC/map2_%d.png", 4);
     }
 
     public static Image[] getIdleAhead() {
@@ -83,6 +78,16 @@ public class LoadImage {
 
     public static Image[][] getBlockImages() {
         return allBlocks;
+    }
+
+    public static Image[] getLine() {
+        return line;
+    }
+
+    private static void loadNpcImages() {
+        npcMap3Idle = loadCharFrame("/Image/NPC/npc_map3_idle_%d.png", 6);
+        npcMap1Idle = loadCharFrame("/Image/NPC/idle_000%d.png", 8);
+        npcMap2Idle = loadCharFrame("/Image/NPC/map2_%d.png", 4);
     }
 
     private static Image[] loadCharFrame(String format, int numOfFrame) {
@@ -126,6 +131,7 @@ public class LoadImage {
         allBlocks[2] = loadCharFrame("/Image/Block/pink_block_%d.png", 3);
         allBlocks[3] = loadCharFrame("/Image/Block/red_block_%d.png", 3);
         allBlocks[4] = loadCharFrame("/Image/Block/yellow_block_%d.png", 3);
+        line = loadCharFrame("/Image/background/line_%d.png", 2);
     }
 }
 

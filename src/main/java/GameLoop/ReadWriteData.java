@@ -8,6 +8,18 @@ import java.util.Set;
 public class ReadWriteData {
 
     private static int level;
+    private static int currentMapLevel = 1;
+    private static double playerX = 21*32;
+    private static double playerY = 48*32;
+    private static Set<String> defeatedNpcIds = new HashSet<>();
+    private static int existingCoins;
+
+    private static final String SAVE_FILE_PATH = "GameProgress.txt";
+    private static final String DEFAULT_CONFIG_PATH = "Files/DefaultData.txt";
+
+    static {
+        loadGameData();
+    }
 
     public static int getCurrentMapLevel() {
         return currentMapLevel;
@@ -31,30 +43,6 @@ public class ReadWriteData {
 
     public static void setPlayerX(double playerX) {
         ReadWriteData.playerX = playerX;
-    }
-
-    private static int existingCoins;
-
-    private static final String SAVE_FILE_PATH = "GameProgress.txt";
-    private static final String DEFAULT_CONFIG_PATH = "Files/DefaultData.txt";
-
-    private static int currentMapLevel = 1;
-    private static double playerX = 21*32;
-    private static double playerY = 48*32;
-
-
-    private ReadWriteData () {
-
-    }
-
-    private static Set<String> defeatedNpcIds = new HashSet<>();
-
-    // ... (các hàm static, loadGameData, v.v...)
-
-    // --- THÊM 3 HÀM MỚI NÀY ---
-
-    static {
-        loadGameData();
     }
 
     /**

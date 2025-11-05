@@ -69,7 +69,9 @@ public class Ball extends Circle{
         }
 
         if (collidedBlock != null) {
-            collidedBlock.contactGameBlock(this);
+            if (!isthrough) {
+                collidedBlock.contactGameBlock(this);
+            }
             if (collidedBlock.handleBlock()) {
                 listBuffs.addBuff(collidedBlock.getX(), collidedBlock.getY(),
                         collidedBlock.getWidth(), collidedBlock.getHeight(), "Bullet", this);

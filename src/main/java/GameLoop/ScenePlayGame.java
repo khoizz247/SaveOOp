@@ -33,8 +33,8 @@ public class ScenePlayGame {
     private ManageMap manageMap;
     private double preBattleX;
     private double preBattleY;
-    private double firstBattleX = 21*32;
-    private double firstBattleY = 48*32;
+    private double firstBattleX = 21 * 32;
+    private double firstBattleY = 48 * 32;
     private NPC currentOpponent = null;
     private int currentMapLevel = 1;
     private int currentBattleLevel;
@@ -42,6 +42,10 @@ public class ScenePlayGame {
     private boolean isAiming = true;    //Biến xác nhận ngắm bắn.
     private boolean isBuffBullet = false;//Biến ngắm bắn lúc có buff.
     private int existingCoins;            //Thêm thuộc tính xu.
+
+    private float blockSpawnTimer = 0.0f;
+    private long lastFrameTime = 0;
+    private static final float BLOCK_SPAWN_TIME = 15.0f;
 
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -99,6 +103,8 @@ public class ScenePlayGame {
         listBuffs.resetBuff();
         isAiming = true;
         isBuffBullet = false;
+        lastFrameTime = 0;
+
         System.out.println("xu hien co: " + existingCoins);
         System.out.println("Reset: " + level);
     }
@@ -115,77 +121,85 @@ public class ScenePlayGame {
 
     //Vong lap chinh
     private void startLevel(GraphicsContext gc, Canvas canvas) {
-
+        lastFrameTime = 0;
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                if (lastFrameTime == 0) {
+                    lastFrameTime = now;
+                    return;
+                }
+                float deltaTime = (now - lastFrameTime) / 1_000_000_000.0f;
+                lastFrameTime = now;
+
                 if (running) {
-                    // System.out.println("level: " + level); // Dòng này bạn có thể giữ hoặc xóa
                     if (isIngame) {
-                        updateInGame();
+                        updateInGame(deltaTime);
                         renderInGame(gc, canvas);
 
                         if (listBlocks.getNumberBlock() == 0) {
                             // --- LOGIC THẮNG ARKAOID (ĐÃ SỬA) ---
-                            isIngame = false;
+                            if (level <= 3) {
+                                isIngame = false;
+                                if (currentOpponent != null) {
+                                    // --- BẮT ĐẦU LOGIC MỚI ---
+                                    // Kiểm tra xem đây có phải là NPC chơi lại (boss 2 map 3) không
+                                    // (Arkanoid level 4 LÀ boss 2)
+                                    boolean isRepeatableBoss = (currentMapLevel == 3 && currentOpponent.getArkanoidLevel() == 4);
 
-                            if (currentOpponent != null) {
+                                    if (isRepeatableBoss) {
+                                        // ---- Đây là NPC chơi lại ----
+                                        System.out.println("Thắng NPC chơi lại. Quay về lobby.");
+                                        existingCoins += 10;
 
-                                // --- BẮT ĐẦU LOGIC MỚI ---
-                                // Kiểm tra xem đây có phải là NPC chơi lại (boss 2 map 3) không
-                                // (Arkanoid level 4 LÀ boss 2)
-                                boolean isRepeatableBoss = (currentMapLevel == 3 && currentOpponent.getArkanoidLevel() == 4);
+                                        // ĐẶT LẠI VỊ TRÍ (ĐẨY LÙI)
+                                        mainCharacter.setxOnMap(preBattleX);
+                                        mainCharacter.setyOnMap(preBattleY + 40); // Đẩy lùi 40 pixel
 
-                                if (isRepeatableBoss) {
-                                    // ---- Đây là NPC chơi lại ----
-                                    System.out.println("Thắng NPC chơi lại. Quay về lobby.");
-                                    existingCoins += 10;
-
-                                    // ĐẶT LẠI VỊ TRÍ (ĐẨY LÙI)
-                                    mainCharacter.setxOnMap(preBattleX);
-                                    mainCharacter.setyOnMap(preBattleY + 40); // Đẩy lùi 40 pixel
-
-                                } else {
-                                    // ---- Đây là NPC đánh 1 lần (logic cũ) ----
-                                    boolean wasAlreadyDefeated = ReadWriteData.isNpcDefeated(
-                                            currentMapLevel,
-                                            currentOpponent.getArkanoidLevel()
-                                    );
-
-                                    if (!wasAlreadyDefeated) {
-                                        System.out.println("Lần đầu hạ gục NPC, tăng level!");
-                                        level++;
-                                        existingCoins += ManageBuff.extraCoins;
-
-                                        currentOpponent.setDefeated(true);
-                                        ReadWriteData.addDefeatedNpc(
+                                    } else {
+                                        // ---- Đây là NPC đánh 1 lần (logic cũ) ----
+                                        boolean wasAlreadyDefeated = ReadWriteData.isNpcDefeated(
                                                 currentMapLevel,
                                                 currentOpponent.getArkanoidLevel()
                                         );
 
-                                        // Kích hoạt spawn quái (ví dụ: hạ boss 3 sẽ spawn boss 4)
-                                        manageNPC.onNpcDefeated(currentOpponent);
+                                        if (!wasAlreadyDefeated) {
+                                            System.out.println("Lần đầu hạ gục NPC, tăng level!");
+                                            level++;
+                                            existingCoins += ManageBuff.extraCoins;
+
+                                            currentOpponent.setDefeated(true);
+                                            ReadWriteData.addDefeatedNpc(
+                                                    currentMapLevel,
+                                                    currentOpponent.getArkanoidLevel()
+                                            );
+
+                                            // Kích hoạt spawn quái (ví dụ: hạ boss 3 sẽ spawn boss 4)
+                                            manageNPC.onNpcDefeated(currentOpponent);
+                                        }
+
+                                        // ĐẶT LẠI VỊ TRÍ (VỀ CHỖ CŨ)
+                                        mainCharacter.setxOnMap(preBattleX);
+                                        mainCharacter.setyOnMap(preBattleY);
                                     }
+                                    // --- KẾT THÚC LOGIC MỚI ---
 
-                                    // ĐẶT LẠI VỊ TRÍ (VỀ CHỖ CŨ)
-                                    mainCharacter.setxOnMap(preBattleX);
-                                    mainCharacter.setyOnMap(preBattleY);
+                                    currentOpponent = null; // Luôn set về null
                                 }
-                                // --- KẾT THÚC LOGIC MỚI ---
 
-                                currentOpponent = null; // Luôn set về null
+                                resetObject();
+                                // --- 2 DÒNG mainCharacter.set... TỪNG Ở ĐÂY ĐÃ BỊ XÓA ---
+                                // --- VÀ DI CHUYỂN VÀO BÊN TRONG IF/ELSE Ở TRÊN ---
+                            } else {
+                                blockSpawnTimer = BLOCK_SPAWN_TIME;
                             }
-
-                            resetObject();
-                            // --- 2 DÒNG mainCharacter.set... TỪNG Ở ĐÂY ĐÃ BỊ XÓA ---
-                            // --- VÀ DI CHUYỂN VÀO BÊN TRONG IF/ELSE Ở TRÊN ---
                         }
 
                         if (listBalls.getNumOfBalls() == 0 && !isAiming) {
-                            // --- LOGIC THUA ARKAOID (SỬA LỖI 2) ---
+                            if (level >= 4) {
+                                existingCoins += ManageBuff.extraCoins;
+                            }
                             isIngame = false;
-
-                            // Đặt lại vị trí, đẩy lùi để không bị kẹt
                             mainCharacter.setxOnMap(preBattleX);
                             mainCharacter.setyOnMap(preBattleY + 40); // Đẩy lùi 40 pixel
                         }
@@ -200,8 +214,12 @@ public class ScenePlayGame {
     }
 
     //Xu li di chuyen cua gach
-    private void updateInGame() {
-
+    private void updateInGame(float deltaTime) {
+        if (!isAiming) {
+            if (level >= 4) {
+                blockSpawnTimer += deltaTime;
+            }
+        }
         // --- Logic chung (Luôn chạy) ---
         if (pressedKeys.contains(KeyCode.LEFT)) {
             myBlock.setX(myBlock.getX() - myBlock.getSpeed());
@@ -225,6 +243,15 @@ public class ScenePlayGame {
                 }
 
             }
+        }
+        if (blockSpawnTimer >= BLOCK_SPAWN_TIME) {
+            listBlocks.addBlock();
+            blockSpawnTimer = 0.0f;
+        }
+        if (listBlocks.getStateAboutToLose() == 4) {
+            existingCoins += ManageBuff.extraCoins;
+            isIngame = false;
+            resetObject();
         }
     }
 
@@ -327,7 +354,7 @@ public class ScenePlayGame {
                         nextMap = 2;
                         nextX = 25 * 16;
                         nextY = 47 * 16;
-                        firstBattleX =  25 * 16;
+                        firstBattleX = 25 * 16;
                         firstBattleY = 46 * 16;
 
                     } else {
@@ -358,9 +385,9 @@ public class ScenePlayGame {
                 if (portalIndex == 0) { // Từ 3 -> 2 (Quay về)
                     needsNpcCheck = false;
                     nextMap = 2;
-                    nextX =  26 * 16;
+                    nextX = 26 * 16;
                     nextY = 4 * 16;
-                    firstBattleX =  26 * 16;
+                    firstBattleX = 26 * 16;
                     firstBattleY = 4 * 16;
                 }
             }
@@ -413,10 +440,8 @@ public class ScenePlayGame {
 
             if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
 
-
                 this.preBattleX = mainCharacter.getxOnMap();
                 this.preBattleY = mainCharacter.getyOnMap();
-
 
                 isIngame = true;
                 currentOpponent = npc; // Lưu lại NPC đang đánh
@@ -439,7 +464,7 @@ public class ScenePlayGame {
     private void renderInGame(GraphicsContext gc, Canvas canvas) {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         myBlock.addOnScene(gc);
-        listBlocks.addListOnScene(gc);
+        listBlocks.addListOnScene(gc, level);
         listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks(), listBuffs);
         Boolean b = listBuffs.addBuffOnScene(gc, myBlock, listBalls);
         if (!isBuffBullet) {
@@ -449,7 +474,7 @@ public class ScenePlayGame {
             //aimingArrow.draw(gc);
             aimingBall.addOnScene(gc);
         }
-        gc.setFill(Color.color(0, 0 , 0 , 0.5));
+        gc.setFill(Color.color(0, 0, 0, 0.5));
         gc.fillRect(0, 0, GameApplication.WIDTH, 65);
     }
 
@@ -497,7 +522,6 @@ public class ScenePlayGame {
         manageNPC.loadNpcsForMap(currentMapLevel); // Tải lại NPC cho map (giờ sẽ trống)
         map.setMapImage(currentMapLevel);
         map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
-
 
 
         if (gameLoop != null) gameLoop.stop();

@@ -19,9 +19,22 @@ public class ReadWriteData {
     private static final String SAVE_FILE_PATH = "GameProgress.txt";
     private static final String DEFAULT_CONFIG_PATH = "Files/DefaultData.txt";
 
+    private static int baseLife = 2;
+    private static double baseWidth = 70.0;
+    private static double baseSpeed = 4.0;
+
     static {
         loadGameData();
     }
+
+    public static int getBaseLife() { return baseLife; }
+    public static void setBaseLife(int life) { baseLife = life; }
+
+    public static double getBaseWidth() { return baseWidth; }
+    public static void setBaseWidth(double width) { baseWidth = width; }
+
+    public static double getBaseSpeed() { return baseSpeed; }
+    public static void setBaseSpeed(double speed) { baseSpeed = speed; }
 
     public static int getCurrentMapLevel() {
         return currentMapLevel;
@@ -118,6 +131,9 @@ public class ReadWriteData {
         currentMapLevel = 1;
         playerX = 21 * 32; // Vị trí CỔ ĐIỂN của Map 1
         playerY = 48 * 32;
+        baseLife = 2;     // Mặc định
+        baseWidth = 70.0;   // Mặc định
+        baseSpeed = 4.0;    // Mặc định
         defeatedNpcIds.clear();
         String line;
         while ((line = br.readLine()) != null) {
@@ -140,6 +156,13 @@ public class ReadWriteData {
                 }
                 if (key.equals("Defeated")) {
                     defeatedNpcIds.add(value); // value sẽ là "1-1", "1-2"...
+                }
+                if (key.equals("BaseLife")) {
+                    baseLife = Integer.parseInt(value);
+                } else if (key.equals("BaseWidth")) {
+                    baseWidth = Double.parseDouble(value);
+                } else if (key.equals("BaseSpeed")) {
+                    baseSpeed = Double.parseDouble(value);
                 }
             }
         }
@@ -166,6 +189,12 @@ public class ReadWriteData {
             bw.newLine();
             bw.write("PlayerY: " + playerY); // Thêm
             bw.newLine();
+            bw.write("BaseLife: " + baseLife);
+            bw.newLine();
+            bw.write("BaseWidth: " + baseWidth);
+            bw.newLine();
+            bw.write("BaseSpeed: " + baseSpeed);
+            bw.newLine();
 
             for (String id : defeatedNpcIds) {
                 bw.write("Defeated: " + id);
@@ -189,6 +218,9 @@ public class ReadWriteData {
             playerX = 21 * 32;
             playerY = 48 * 32;
             defeatedNpcIds.clear();
+            baseLife = 2;     // Đặt lại mặc định
+            baseWidth = 70.0;   // Đặt lại mặc định
+            baseSpeed = 4.0;
 
             saveGameData();
         } catch (IOException e) {

@@ -10,6 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import StartGame.GameApplication;
 import javafx.util.Duration;
+import GameLoop.ReadWriteData;
 
 public class MyBlock extends Block {
     private int life;
@@ -21,33 +22,53 @@ public class MyBlock extends Block {
     private Timeline currentBlinkingEffect;
     private DoubleProperty opacity = new SimpleDoubleProperty(1.0);
     private final Image image;
-    public MyBlock(double speed) {
-        this.speed = speed;
-        this.image = LoadImage.getPaddle();
-        life = 2;
-        increasedWidth = 30;
-        maxBuffedTime = 5;
-    }
+//    public MyBlock(double speed) {
+//        this.speed = speed;
+//        this.image = LoadImage.getPaddle();
+//        life = 2;
+//        increasedWidth = 30;
+//        maxBuffedTime = 5;
+//    }
 
     public MyBlock(double width, double height, double speed) {
-        super((GameApplication.WIDTH - width) / 2, 570, width, height);
-        this.speed = speed;
+        // --- ĐÃ SỬA LỖI ---
+        // 1. GỌI SUPER() NGAY LẬP TỨC
+        //    và gọi các hàm ReadWriteData BÊN TRONG super()
+        super((GameApplication.WIDTH - ReadWriteData.getBaseWidth()) / 2, 570, ReadWriteData.getBaseWidth(), height);
+
+        // 2. Gán các giá trị cho MyBlock (sau khi super đã chạy)
+        this.speed = ReadWriteData.getBaseSpeed();
+        this.life = ReadWriteData.getBaseLife();
+
+        // 3. Lấy lại giá trị width mà super() vừa set
+        //    (Cách này tốt hơn là gọi ReadWriteData.getBaseWidth() 2 lần)
+        this.defaultWidth = super.getWidth();
+
+        // 4. Các giá trị không đổi
         this.image = LoadImage.getPaddle();
-        this.defaultWidth = width;
-        this.life = 2;
         this.increasedWidth = 30;
         this.maxBuffedTime = 5;
     }
 
     public void resetMyBlock() {
-        setX((GameApplication.WIDTH - getWidth()) / 2);
-        setWidth(defaultWidth);
+        // 1. Lấy các giá trị đã lưu
+        double baseWidth = ReadWriteData.getBaseWidth();
+        int baseLife = ReadWriteData.getBaseLife();
+        double baseSpeed = ReadWriteData.getBaseSpeed();
+
+        // 2. Gán các giá trị
+        setWidth(baseWidth);
+        setX((GameApplication.WIDTH - baseWidth) / 2);
+        setLife(baseLife);
+        setSpeed(baseSpeed);
+
+        // 3. Reset hiệu ứng
         stopAllBlinking();
         if (currentBuff != null) {
             currentBuff.stop();
             currentBuff = null;
         }
-        life = 2;
+
         setOpacity(1.0);
     }
 

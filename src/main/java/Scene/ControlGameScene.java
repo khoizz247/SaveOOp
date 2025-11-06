@@ -35,10 +35,37 @@ public class ControlGameScene {
 
         // Dùng addEventHandler thay vì setOnKeyPressed
         canvas.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.P) {
-                togglePause();
-                event.consume(); // tránh trôi phím vào ScenePlayGame
+            KeyCode code = event.getCode();
+
+            // 1. Ưu tiên Pause
+            if (code == KeyCode.ESCAPE || code == KeyCode.P) {
+                // Nếu shop đang mở, ESC sẽ đóng shop trước
+                if (scenePlayGame.isShopUIActive()) {
+                    scenePlayGame.handleShopInput(KeyCode.ESCAPE);
+                } else {
+                    togglePause();
+                }
+                event.consume();
+                return;
             }
+
+            // 2. Nếu Shop đang mở, gửi input đến Shop
+            if (scenePlayGame.isShopUIActive()) {
+                scenePlayGame.handleShopInput(code);
+                event.consume();
+            }
+            // 3. Nếu không, gửi input để di chuyển (như cũ)
+            else {
+                // (Lưu ý: Bạn cần khai báo pressedKeys ở đầu lớp ControlGameScene
+                // thay vì trong ScenePlayGame)
+                // Giả sử pressedKeys là biến của ScenePlayGame:
+                scenePlayGame.addPressedKey(code); // <-- Bạn cần tạo hàm này
+            }
+        });
+
+        canvas.addEventHandler(javafx.scene.input.KeyEvent.KEY_RELEASED, event -> {
+            // Giả sử pressedKeys là biến của ScenePlayGame:
+            scenePlayGame.removePressedKey(event.getCode()); // <-- Bạn cần tạo hàm này
         });
 
         ResumeButton.setOnAction(e -> resumeGame());

@@ -51,6 +51,9 @@ public class ScenePlayGame {
     private static final float BLOCK_SPAWN_TIME = 2.0f;
 
     private DialogueManager dialogueManager;
+    private ShopManager shopManager;
+    private boolean isShopUIActive = false; // <-- MỚI
+    private NPC currentShopNPC = null; // <-- MỚI (Lưu NPC shop đang tương tác)// <-- MỚI
     private int initialBlockCount = 0; // Để tính 20%
 
     public void runGame(Canvas canvas) {
@@ -76,7 +79,7 @@ public class ScenePlayGame {
         aimingBall = new Ball(myBlock.getX() + myBlock.getWidth() / 2, myBlock.getY() - 6, 6, 1, 1, 0);
         gameSession = new GameSession();
         dialogueManager = new DialogueManager(); // <-- KHỞI TẠO
-
+        shopManager = new ShopManager();
         level = ReadWriteData.getLevel();
         existingCoins = ReadWriteData.getExistingCoins();
         this.currentMapLevel = ReadWriteData.getCurrentMapLevel();
@@ -146,6 +149,7 @@ public class ScenePlayGame {
 
                 if (running) {
                     dialogueManager.update(deltaTime);
+                    shopManager.update(deltaTime);
                     if (isIngame) {
                         updateInGame(deltaTime);
                         renderInGame(gc, canvas);
@@ -227,6 +231,26 @@ public class ScenePlayGame {
         gameLoop.start();
     }
 
+    // --- HÀM MỚI: NHẬN INPUT TỪ ControlGameScene ---
+    /**
+     * Xử lý input riêng cho Shop UI (ấn 1 lần)
+     */
+    public void handleShopInput(KeyCode code) {
+        if (isShopUIActive) {
+            shopManager.handleInput(code);
+
+            // Nếu shop vừa đóng (sau khi mua / ấn ESC)
+            if (!shopManager.isShopOpen()) {
+                isShopUIActive = false;
+            }
+        }
+    }
+
+    // --- HÀM MỚI ---
+    public boolean isShopUIActive() {
+        return isShopUIActive;
+    }
+
     //Xu li di chuyen cua gach
     private void updateInGame(float deltaTime) {
 
@@ -289,8 +313,19 @@ public class ScenePlayGame {
         // manageNPC sẽ cập nhật tất cả NPC
         manageNPC.update(System.nanoTime());
 
+        if (isShopUIActive) {
+            mainCharacter.setRunning(false);
+            return; // Dừng, không làm gì khác
+        }
+
         if (dialogueManager.isShowingDialogue()) {
             mainCharacter.setRunning(false);
+            if (currentShopNPC != null && pressedKeys.contains(KeyCode.ENTER)) {
+                dialogueManager.closeDialogue(); // Đóng hội thoại
+                isShopUIActive = true;           // Mở UI Shop
+                shopManager.openShop();
+                pressedKeys.clear(); // Xóa phím ENTER để tránh lỗi
+            }
         } else {
             // ... (toàn bộ code di chuyển W,A,S,D cũ) ...
             // (Cut và Paste toàn bộ code xử lý di chuyển vào trong khối else này)
@@ -355,8 +390,6 @@ public class ScenePlayGame {
             }
 
         }
-
-
 
 
         // Cập nhật vị trí camera (bản đồ) dựa trên vị trí MỚI của nhân vật
@@ -472,32 +505,53 @@ public class ScenePlayGame {
                     npc.getxOnMap(), npc.getyOnMap(), npc.getSize(), npc.getSize()
             );
 
-            // 1. Va chạm để BẮT ĐẦU TRẬN ĐẤU
-            if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
-                // Chỉ bắt đầu trận nếu không đang bận nói chuyện
-                if (!dialogueManager.isShowingDialogue()) {
-                    this.preBattleX = mainCharacter.getxOnMap();
-                    this.preBattleY = mainCharacter.getyOnMap();
+            if (npc.getNpcType() == 99) {
 
-                    isIngame = true;
-                    currentOpponent = npc;
-                    currentOpponent.setHasSpokenTaunt(false); // Reset cờ thoại 20%
-                    this.currentBattleLevel = npc.getArkanoidLevel();
-                    resetObject();
-                    break;
+                // --- LOGIC CHỈ DÀNH CHO SHOP ---
+                if (playerBounds.intersects(npc.getProximityBounds().getLayoutBounds())) {
+                    if (!npc.hasSpokenProximity() && !dialogueManager.isShowingDialogue()) {
+                        dialogueManager.startDialogue(npc.getProximityDialogue());
+                        npc.setHasSpokenProximity(true);
+                        currentShopNPC = npc; // Đánh dấu là đang tương tác với NPC này
+                    }
+                } else {
+                    // Nếu đi xa, reset cờ
+                    npc.setHasSpokenProximity(false);
+                    if (currentShopNPC == npc) {
+                        currentShopNPC = null; // Không còn tương tác nữa
+                    }
                 }
-            }
-            // 2. Va chạm để NÓI CHUYỆN (vùng lớn hơn)
-            else if (playerBounds.intersects(npc.getProximityBounds().getLayoutBounds())) {
-                if (!npc.hasSpokenProximity() && !dialogueManager.isShowingDialogue()) {
-                    dialogueManager.startDialogue(npc.getProximityDialogue());
-                    npc.setHasSpokenProximity(true); // Đánh dấu đã nói
+
+            } else {
+
+                // --- LOGIC CHỈ DÀNH CHO NPC CHIẾN ĐẤU (Loại thường) ---
+                // 1. Va chạm để BẮT ĐẦU TRẬN ĐẤU
+                if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
+                    // Chỉ bắt đầu trận nếu không đang bận nói chuyện
+                    if (!dialogueManager.isShowingDialogue()) {
+                        this.preBattleX = mainCharacter.getxOnMap();
+                        this.preBattleY = mainCharacter.getyOnMap();
+
+                        isIngame = true;
+                        currentOpponent = npc;
+                        currentOpponent.setHasSpokenTaunt(false); // Reset cờ thoại 20%
+                        this.currentBattleLevel = npc.getArkanoidLevel();
+                        resetObject();
+                        break;
+                    }
                 }
+                // 2. Va chạm để NÓI CHUYỆN (vùng lớn hơn)
+                else if (playerBounds.intersects(npc.getProximityBounds().getLayoutBounds())) {
+                    if (!npc.hasSpokenProximity() && !dialogueManager.isShowingDialogue()) {
+                        dialogueManager.startDialogue(npc.getProximityDialogue());
+                        npc.setHasSpokenProximity(true); // Đánh dấu đã nói
+                    }
+                }
+                //3. (Tùy chọn) Reset cờ "đã nói" nếu đi xa
+                 else {
+                    npc.setHasSpokenProximity(false);
+                 }
             }
-            // 3. (Tùy chọn) Reset cờ "đã nói" nếu đi xa
-            // else {
-            //    npc.setHasSpokenProximity(false);
-            // }
         }
     }
 
@@ -542,6 +596,7 @@ public class ScenePlayGame {
 
         manageNPC.render(gc, map);
         dialogueManager.render(gc, false);
+        shopManager.render(gc);
     }
 
     public boolean isIngame() {
@@ -595,6 +650,13 @@ public class ScenePlayGame {
 
         if (gameLoop != null) gameLoop.stop();
         startLevel(gc, canvas);
+    }
+
+    public void addPressedKey(KeyCode code) {
+        pressedKeys.add(code);
+    }
+    public void removePressedKey(KeyCode code) {
+        pressedKeys.remove(code);
     }
 
     public boolean isInArkanoid() {

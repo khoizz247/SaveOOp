@@ -14,7 +14,7 @@ public class NPC extends Character {
 
     private int arkanoidLevel;
     private boolean isDefeated = false;
-
+    private int npcType;
     private List<Dialogue> proximityDialogue = new ArrayList<>();
     private List<Dialogue> battleTauntDialogue = new ArrayList<>(); // Thoại khi 20%
     private boolean hasSpokenProximity = false;
@@ -26,14 +26,24 @@ public class NPC extends Character {
         setyOnMap(y);
         setSize(size);
         this.arkanoidLevel = arkanoidLevel;
+        this.npcType = npcType;
         if (npcType == 2) {
             idleFrames = LoadImage.getNpcMap2Idle(); // Lấy hoạt ảnh NPC Map 2
         } else if (npcType == 3) {
             idleFrames = LoadImage.getNpcMap3Idle(); // Lấy hoạt ảnh NPC Map 3
+        } else if (npcType == 99) {
+            // (Tùy chọn) Load ảnh riêng cho NPC Shop
+            // idleFrames = LoadImage.getNpcShopIdle();
+            // Tạm thời dùng ảnh Map 1
+            idleFrames = LoadImage.getNpcDemonIdle();
         } else {
             // Mặc định là NPC Map 1
             idleFrames = LoadImage.getNpcDemonIdle();
         }
+    }
+
+    public int getNpcType() {
+        return npcType;
     }
 
     public void update(long now) {

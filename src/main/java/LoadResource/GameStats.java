@@ -50,13 +50,14 @@ public class GameStats {
                 // 2. Đọc các dòng còn lại (Các lượt chơi)
                 for (int i = 1; i < lines.size(); i++) {
                     String line = lines.get(i);
-                    String[] parts = line.split(" ");
+                    String[] parts = line.split("/|");
 
-                    if (parts.length == 2) {
+                    if (parts.length == 3) {
                         try {
                             int score = Integer.parseInt(parts[0]);
                             float time = Float.parseFloat(parts[1]);
-                            historyPlay.add(new GameSession(score, time));
+                            String date = parts[2];
+                            historyPlay.add(new GameSession(score, time, date));
                         } catch (NumberFormatException e) {
                             System.err.println("Bỏ qua dòng lượt chơi bị lỗi: " + line);
                         }
@@ -88,7 +89,7 @@ public class GameStats {
 
         // 2. Thêm tất cả các lượt chơi (dùng hàm toString() của GameSession)
         for (GameSession session : historyPlay) {
-            String info = String.format("%d %.5f", session.getScore(), session.getTimePlay());
+            String info = String.format("%d|%.5f|%s", session.getScore(), session.getTimePlay(), session.getDateTimePlay());
             lines.add(info);
         }
         try {
@@ -106,6 +107,10 @@ public class GameStats {
         for (i = 0; i < historyPlay.size(); i++) {
             if (historyPlay.get(i).getScore() < gameSession.getScore()) {
                 break;
+            } else if (historyPlay.get(i).getScore() == gameSession.getScore()) {
+                if (historyPlay.get(i).getTimePlay() > gameSession.getTimePlay()) {
+                    break;
+                }
             }
         }
         historyPlay.add(i, new GameSession(gameSession.getScore(), gameSession.getTimePlay()));

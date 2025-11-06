@@ -28,6 +28,8 @@ public class LoadImage {
 
     private static Image[] line;
 
+    private static Image heart;
+
     public static Image[] getNpcDemonIdle() {
         return npcMap1Idle;
     }
@@ -84,6 +86,10 @@ public class LoadImage {
         return line;
     }
 
+    public static Image getHeart() {
+        return heart;
+    }
+
     private static void loadNpcImages() {
         npcMap3Idle = loadCharFrame("/Image/NPC/npc_map3_idle_%d.png", 6);
         npcMap1Idle = loadCharFrame("/Image/NPC/idle_000%d.png", 8);
@@ -119,9 +125,14 @@ public class LoadImage {
         return map2;
     }
 
+    public static void loadBuffImage() {
+        heart = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Ball/heart.png")));
+    }
+
     public static void loadAllImage() {
         loadCharImage();
         loadNpcImages();
+        loadBuffImage();
         map1 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map1.png")));
         map2 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map2.png")));
         map3 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Map/map3.png")));

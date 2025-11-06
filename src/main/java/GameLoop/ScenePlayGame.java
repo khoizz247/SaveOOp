@@ -3,6 +3,7 @@ package GameLoop;
 import GameObject.*;
 
 import LoadResource.GameStats;
+import LoadResource.LoadImage;
 import StartGame.GameApplication;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
@@ -201,7 +202,7 @@ public class ScenePlayGame {
                             }
                         }
 
-                        if (listBalls.getNumOfBalls() == 0 && !isAiming) {
+                        if ((listBalls.getNumOfBalls() == 0 && !isAiming) || myBlock.getLife() <= 0) {
                             if (level >= 4) {
                                 existingCoins += ManageBuff.extraCoins;
                                 GameStats.addGameSession(gameSession);
@@ -474,6 +475,9 @@ public class ScenePlayGame {
     //Render man hinh game
     private void renderInGame(GraphicsContext gc, Canvas canvas) {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        for (int i = 1; i <= myBlock.getLife(); i++) {
+            gc.drawImage(LoadImage.getHeart(), 10 + (i - 1) * 25, 570, 20, 20);
+        }
         myBlock.addOnScene(gc);
         listBlocks.addListOnScene(gc, level);
         listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks(), listBuffs, gameSession);
@@ -488,7 +492,7 @@ public class ScenePlayGame {
         gc.fillRect(0, 0, GameApplication.WIDTH, 65);
 
         if (level >= 4) {
-            gameSession.renderClock(gc, listBlocks.getStateAboutToLose());
+            gameSession.renderClock(gc, listBlocks.getStateAboutToLose(), existingCoins);
         }
     }
 

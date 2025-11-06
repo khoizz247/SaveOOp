@@ -24,6 +24,8 @@ public class GameApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), WIDTH, HEIGHT);
         stage.setTitle("Arkanoid");
         stage.setScene(scene);
+
+        stage.setResizable(false);
         stage.show();
     }
 }

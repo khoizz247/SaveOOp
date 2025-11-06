@@ -1,6 +1,7 @@
 package Scene;
 
 import LoadResource.LoadVideo;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,76 +9,163 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import GameLoop.ReadWriteData;
 
 public class ControlHomeScene {
 
     @FXML
-    private Button QuitButton;
+    private AnchorPane rootPane;
 
     @FXML
-    private Button SettingButton;
+    private VBox oldMenuVBox; // Menu gốc (Start / Setting / Quit)
 
     @FXML
-    private Button StartButton;
+    private VBox newMenuVBox; // Menu mới (New Game / Continue / Cancel)
+
+    @FXML
+    private Button StartButton, SettingButton, QuitButton;
+    @FXML
+    private Button NewGameButton, ContinueButton, CancelButton;
 
     @FXML
     public void initialize() {
-        // ====== GẮN SỰ KIỆN CHO NÚT ======
+        // Hiệu ứng hover cho tất cả nút
+        addHoverEffect(StartButton);
+        addHoverEffect(SettingButton);
+        addHoverEffect(QuitButton);
+        addHoverEffect(NewGameButton);
+        addHoverEffect(ContinueButton);
+        addHoverEffect(CancelButton);
 
-        if (StartButton != null) {
-            StartButton.setOnAction(this::startGame);
-            addHoverEffect(StartButton);
-        }
+        // Ẩn menu mới ban đầu
+        newMenuVBox.setVisible(false);
+        newMenuVBox.setManaged(false);
+        newMenuVBox.setOpacity(0);
 
-        if (SettingButton != null) {
-            SettingButton.setOnAction(this::openSetting);
-            addHoverEffect(SettingButton);
-        }
+        // Gắn sự kiện nút
+        StartButton.setOnAction(this::showNewMenuAnimated);
+        SettingButton.setOnAction(this::openSetting);
+        QuitButton.setOnAction(e -> quitGame());
 
-        if (QuitButton != null) {
-            QuitButton.setOnAction(e -> quitGame());
-            addHoverEffect(QuitButton);
-        }
+        // Nút New Game đã đúng, giữ nguyên logic
+        NewGameButton.setOnAction(e -> startNewGame((Stage) StartButton.getScene().getWindow()));
 
-        // Bỏ focus mặc định để tránh tự kích hoạt
-        Platform.runLater(() -> {
-            if (StartButton != null && StartButton.getParent() != null) {
-                StartButton.getParent().requestFocus();
-            }
-        });
+        // SỬA ĐỔI: Nút Continue bây giờ sẽ gọi hàm continueGame
+        ContinueButton.setOnAction(e -> continueGame((Stage) ContinueButton.getScene().getWindow()));
+
+        CancelButton.setOnAction(e -> hideNewMenuAnimated());
+
+        // Tránh focus tự động
+        Platform.runLater(() -> oldMenuVBox.requestFocus());
     }
 
-    // Khi ấn "Start Game"
-    private void startGame(ActionEvent event) {
-        try {
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+    /** Hiệu ứng chuyển từ menu chính sang menu New Game */
+    private void showNewMenuAnimated(ActionEvent event) {
+        newMenuVBox.setVisible(true);
+        newMenuVBox.setManaged(true);
 
-            // Gọi hàm phát video intro
+        TranslateTransition moveLeft = new TranslateTransition(Duration.millis(600), oldMenuVBox);
+        moveLeft.setToX(-400);
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(400), oldMenuVBox);
+        fadeOut.setToValue(0);
+
+        TranslateTransition moveIn = new TranslateTransition(Duration.millis(600), newMenuVBox);
+        moveIn.setFromX(400);
+        moveIn.setToX(0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), newMenuVBox);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        ParallelTransition outAnim = new ParallelTransition(moveLeft, fadeOut);
+        ParallelTransition inAnim = new ParallelTransition(moveIn, fadeIn);
+
+        outAnim.setOnFinished(e -> {
+            oldMenuVBox.setVisible(false);
+            oldMenuVBox.setManaged(false);
+            inAnim.play();
+        });
+
+        outAnim.play();
+    }
+
+    /** Quay lại menu chính */
+    @FXML
+    private void hideNewMenuAnimated() {
+        oldMenuVBox.setVisible(true);
+        oldMenuVBox.setManaged(true);
+
+        TranslateTransition moveRight = new TranslateTransition(Duration.millis(600), newMenuVBox);
+        moveRight.setToX(400);
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(400), newMenuVBox);
+        fadeOut.setToValue(0);
+
+        TranslateTransition moveBack = new TranslateTransition(Duration.millis(600), oldMenuVBox);
+        moveBack.setFromX(-400);
+        moveBack.setToX(0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(400), oldMenuVBox);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        ParallelTransition outAnim = new ParallelTransition(moveRight, fadeOut);
+        ParallelTransition inAnim = new ParallelTransition(moveBack, fadeIn);
+
+        outAnim.setOnFinished(e -> {
+            newMenuVBox.setVisible(false);
+            newMenuVBox.setManaged(false);
+            newMenuVBox.setOpacity(0);
+            inAnim.play();
+        });
+
+        outAnim.play();
+    }
+
+    /** Bắt đầu trò chơi mới (New Game) */
+    private void startNewGame(Stage stage) {
+        try {
             LoadVideo.playIntroVideo(stage, () -> {
                 try {
+                    // 🧩 Reset toàn bộ dữ liệu về mặc định
+                    ReadWriteData.resetAllGameData();
+
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
-                    Scene scene = new Scene(loader.load());
+                    Scene scene = new Scene(loader.load(), 800, 600);
                     stage.setScene(scene);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /** (HÀM MỚI) Tiếp tục trò chơi (Continue Game) */
+    private void continueGame(Stage stage) {
+        try {
+            // đọc file lưu
+            ReadWriteData.loadGameData();
 
-    // Khi ấn "Setting"
-    private void openSetting(ActionEvent event) {
-        System.out.println("⚙️ Mở giao diện cài đặt (chưa triển khai).");
-        // TODO: sau này có thể mở setting-view.fxml nếu cần
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
+            Scene scene = new Scene(loader.load(), 800, 600);
+            stage.setScene(scene);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Lỗi khi tải game (hoặc chưa có file save).");
+        }
     }
 
-    // Khi ấn "Quit Game"
+
+    /** Mở cài đặt */
+    private void openSetting(ActionEvent event) {
+        System.out.println("⚙️ Mở giao diện cài đặt (chưa triển khai).");
+    }
+
+    /** Thoát game */
     private void quitGame() {
         Stage stage = (Stage) QuitButton.getScene().getWindow();
         stage.close();
@@ -85,7 +173,7 @@ public class ControlHomeScene {
         System.exit(0);
     }
 
-    // ====== HIỆU ỨNG HOVER ======
+    /** Hiệu ứng hover cho nút */
     private void addHoverEffect(Button button) {
         DropShadow glow = new DropShadow();
         glow.setColor(Color.WHITE);
@@ -93,14 +181,12 @@ public class ControlHomeScene {
 
         button.setOnMouseEntered(e -> {
             button.setEffect(glow);
-            button.setTextFill(Color.WHITE);
             button.setScaleX(1.05);
             button.setScaleY(1.05);
         });
 
         button.setOnMouseExited(e -> {
-            button.setEffect(null);
-            button.setTextFill(Color.WHITE);
+            button.setEffect(new DropShadow(5, Color.BLACK));
             button.setScaleX(1.0);
             button.setScaleY(1.0);
         });

@@ -10,23 +10,28 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="rootPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Scene.ControlHomeScene">
+<AnchorPane fx:id="rootPane" prefHeight="600.0" prefWidth="800.0"
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Scene.ControlHomeScene">
 
     <children>
         <AmbientLight color="CHARTREUSE" />
 
+        <!-- Hình nền -->
         <ImageView fitHeight="600.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true">
             <image>
                 <Image url="@../Image/background/background.png" />
             </image>
         </ImageView>
 
+        <!-- Logo chính -->
         <ImageView fitHeight="250.0" fitWidth="500.0" layoutX="150.0" layoutY="50.0" preserveRatio="true">
             <image>
                 <Image url="@../Image/LogoGame/LogoGame.png" />
             </image>
         </ImageView>
 
+        <!-- Hình Finn -->
         <ImageView fitHeight="200.0" fitWidth="300.0" layoutX="250.0" layoutY="120.0" preserveRatio="true">
             <image>
                 <Image url="@../Image/LogoGame/Finn.png" />
@@ -36,9 +41,13 @@
             </effect>
         </ImageView>
 
-        <VBox layoutX="297.0" layoutY="242.0" prefHeight="235.0" prefWidth="206.0" spacing="1">
+        <!-- ========== MENU GỐC (3 NÚT CŨ) ========== -->
+        <VBox fx:id="oldMenuVBox" layoutX="297.0" layoutY="242.0"
+              prefHeight="235.0" prefWidth="206.0" spacing="10" alignment="CENTER">
             <children>
-                <Button fx:id="StartButton" prefHeight="60.0" prefWidth="500.0" style="-fx-background-color: transparent; -fx-border-color: transparent;" text="Start Game" textFill="WHITE">
+                <Button fx:id="StartButton" prefHeight="60.0" prefWidth="500.0"
+                        style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                        text="Start Game" textFill="WHITE">
                     <font>
                         <Font name="Papyrus" size="30.0" />
                     </font>
@@ -47,7 +56,9 @@
                     </effect>
                 </Button>
 
-                <Button fx:id="SettingButton" prefHeight="60.0" prefWidth="500.0" style="-fx-background-color: transparent; -fx-border-color: transparent;" text="Setting" textFill="WHITE">
+                <Button fx:id="SettingButton" prefHeight="60.0" prefWidth="500.0"
+                        style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                        text="Setting" textFill="WHITE">
                     <font>
                         <Font name="Papyrus" size="30.0" />
                     </font>
@@ -56,7 +67,9 @@
                     </effect>
                 </Button>
 
-                <Button fx:id="QuitButton" prefHeight="60.0" prefWidth="500.0" style="-fx-background-color: transparent; -fx-border-color: transparent;" text="Quit Game" textFill="WHITE">
+                <Button fx:id="QuitButton" prefHeight="60.0" prefWidth="500.0"
+                        style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                        text="Quit Game" textFill="WHITE">
                     <font>
                         <Font name="Papyrus" size="30.0" />
                     </font>
@@ -66,6 +79,47 @@
                 </Button>
             </children>
         </VBox>
+
+        <!-- ========== MENU MỚI (3 NÚT: NEW, CONTINUE, CANCEL) ========== -->
+        <VBox fx:id="newMenuVBox" layoutX="297.0" layoutY="242.0"
+              prefHeight="235.0" prefWidth="206.0" spacing="10" alignment="CENTER"
+              visible="false" managed="false" opacity="0">
+            <children>
+                <Button fx:id="NewGameButton" prefHeight="60.0" prefWidth="500.0"
+                        style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                        text="New Game" textFill="WHITE">
+                    <font>
+                        <Font name="Papyrus" size="30.0" />
+                    </font>
+                    <effect>
+                        <DropShadow color="BLACK" radius="5.0" />
+                    </effect>
+                </Button>
+
+                <Button fx:id="ContinueButton" prefHeight="60.0" prefWidth="500.0"
+                        style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                        text="Continue" textFill="WHITE">
+                    <font>
+                        <Font name="Papyrus" size="30.0" />
+                    </font>
+                    <effect>
+                        <DropShadow color="BLACK" radius="5.0" />
+                    </effect>
+                </Button>
+
+                <Button fx:id="CancelButton" prefHeight="60.0" prefWidth="500.0"
+                        style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                        text="Cancel" textFill="WHITE">
+                    <font>
+                        <Font name="Papyrus" size="30.0" />
+                    </font>
+                    <effect>
+                        <DropShadow color="BLACK" radius="5.0" />
+                    </effect>
+                </Button>
+            </children>
+        </VBox>
+
     </children>
 
     <cursor>

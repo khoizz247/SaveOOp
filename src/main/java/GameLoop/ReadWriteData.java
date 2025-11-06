@@ -4,6 +4,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet; // <-- Thêm import này
 import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ReadWriteData {
 
@@ -175,6 +177,25 @@ public class ReadWriteData {
             System.err.println("Lỗi khi đang lưu dữ liệu game (Không có quyền ghi?): " + e.getMessage());
         }
     }
+
+    public static void resetAllGameData() {
+        try {
+            Files.deleteIfExists(Paths.get("GameProgress.txt"));
+            Files.deleteIfExists(Paths.get("HistoryPlay.txt"));
+
+            level = 1;
+            existingCoins = 0;
+            currentMapLevel = 1;
+            playerX = 21 * 32;
+            playerY = 48 * 32;
+            defeatedNpcIds.clear();
+
+            saveGameData();
+        } catch (IOException e) {
+            System.err.println("⚠️ Lỗi khi reset dữ liệu game: " + e.getMessage());
+        }
+    }
+
 
     public static int getLevel() {
         return level;

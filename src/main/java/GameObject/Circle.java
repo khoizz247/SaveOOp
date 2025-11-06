@@ -21,6 +21,7 @@ public class Circle {
         this.dx = dx;
         this.dy = dy;
         this.isInScreen = true;
+        setDirection();
     }
 
     public double getBallX() {
@@ -104,5 +105,12 @@ public class Circle {
     public void addOnScene(GraphicsContext gc) {
         gc.setFill(Color.ORANGE);
         gc.fillOval(ballX - radius, ballY - radius, radius * 2, radius * 2);
+    }
+
+    public void setDirection() {
+        double length = Math.sqrt(getDx() * getDx() + getDy() * getDy());
+        if (length == 0) return;
+        setDx((getDx() / length) * getSpeed());
+        setDy((getDy() / length) * getSpeed());
     }
 }

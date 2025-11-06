@@ -20,12 +20,7 @@ public class Ball extends Circle{
         this.isthrough = isthrough;
     }
 
-    public void setDirection() {
-        double length = Math.sqrt(getDx() * getDx() + getDy() * getDy());
-        if (length == 0) return;
-        setDx((getDx() / length) * getSpeed());
-        setDy((getDy() / length) * getSpeed());
-    }
+
 
     public void updateBall(MyBlock myBlock, List<GameBlock> blocks, ManageBuff listBuffs, GameSession gameSession) {
 

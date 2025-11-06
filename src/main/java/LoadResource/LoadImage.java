@@ -18,6 +18,15 @@ public class LoadImage {
     private static Image[] runRight;
     private static Image[][] allBlocks;
 
+    private static Image paddle;
+
+    private static Image[] coin;
+    private static Image increasePaddle;
+    private static Image bullet;
+    private static Image addThreeeBalls;
+    private static Image cloneBall;
+    private static Image[] fireBall;
+
     private static Image map1;
     private static Image map2;
     private static Image map3;
@@ -29,6 +38,42 @@ public class LoadImage {
     private static Image[] line;
 
     private static Image heart;
+
+    public static Image[][] getAllBlocks() {
+        return allBlocks;
+    }
+
+    public static Image getPaddle() {
+        return paddle;
+    }
+
+    public static Image[] getCoin() {
+        return coin;
+    }
+
+    public static Image getIncreasePaddle() {
+        return increasePaddle;
+    }
+
+    public static Image getBullet() {
+        return bullet;
+    }
+
+    public static Image getAddThreeeBalls() {
+        return addThreeeBalls;
+    }
+
+    public static Image getCloneBall() {
+        return cloneBall;
+    }
+
+    public static Image[] getFireBall() {
+        return fireBall;
+    }
+
+    public static Image[] getNpcMap1Idle() {
+        return npcMap1Idle;
+    }
 
     public static Image[] getNpcDemonIdle() {
         return npcMap1Idle;
@@ -126,6 +171,12 @@ public class LoadImage {
     }
 
     public static void loadBuffImage() {
+        coin = loadCharFrame("/Image/Ball/coin_%d.png", 6);
+        increasePaddle = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Ball/increase_paddle.png")));
+        bullet = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Ball/bullet.png")));
+        addThreeeBalls = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Ball/Add_3_balls.png")));
+        cloneBall = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Ball/Clone_ball.png")));
+        fireBall = loadCharFrame("/Image/Ball/fire_ball_%d.png", 4);
         heart = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Ball/heart.png")));
     }
 
@@ -143,6 +194,7 @@ public class LoadImage {
         allBlocks[3] = loadCharFrame("/Image/Block/red_block_%d.png", 3);
         allBlocks[4] = loadCharFrame("/Image/Block/yellow_block_%d.png", 3);
         line = loadCharFrame("/Image/background/line_%d.png", 2);
+        paddle = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Block/paddle.png")));
     }
 }
 

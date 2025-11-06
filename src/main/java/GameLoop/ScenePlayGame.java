@@ -15,6 +15,7 @@ import javafx.scene.shape.Rectangle;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class ScenePlayGame {
     private final Set<KeyCode> pressedKeys = new HashSet<>();
     private AnimationTimer gameLoop;
@@ -228,6 +229,7 @@ public class ScenePlayGame {
                 blockSpawnTimer += deltaTime;
                 gameSession.update(deltaTime);
             }
+            listBuffs.setTimeCreateObstacle(myBlock.getX(), myBlock.getWidth(), level, deltaTime);
         }
         // --- Logic chung (Luôn chạy) ---
         if (pressedKeys.contains(KeyCode.LEFT)) {

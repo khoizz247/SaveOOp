@@ -1,5 +1,5 @@
 Level: 1
 ExistingCoins: 0
 CurrentMapLevel: 1
-PlayerX: 280.40855018384934
-PlayerY: 1159.4085501838658
+PlayerX: 672.0
+PlayerY: 1536.0

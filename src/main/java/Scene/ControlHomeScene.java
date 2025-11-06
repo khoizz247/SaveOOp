@@ -14,10 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
-import java.io.IOException;
+import GameLoop.ReadWriteData;
 
 public class ControlHomeScene {
 
@@ -132,10 +129,8 @@ public class ControlHomeScene {
         try {
             LoadVideo.playIntroVideo(stage, () -> {
                 try {
-                    // --- BẮT ĐẦU LOGIC RESET FILE ---
-                    // Gọi hàm helper để reset CẢ HAI file save
-                    resetGameFiles();
-                    // --- KẾT THÚC LOGIC RESET FILE ---
+                    // 🧩 Reset toàn bộ dữ liệu về mặc định
+                    ReadWriteData.resetAllGameData();
 
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
                     Scene scene = new Scene(loader.load(), 800, 600);
@@ -149,35 +144,15 @@ public class ControlHomeScene {
         }
     }
 
-    /**
-     * Hàm này dùng để reset file lưu game.
-     * Bạn có thể chọn 1 trong 2 cách: xóa file hoặc ghi đè file.
-     */
-    private void resetGameFiles() {
-        try {
-            Path saveFilePath = Paths.get("GameProgress.txt");
-
-            Files.deleteIfExists(saveFilePath);
-            System.out.println("Đã xóa file lưu cũ.");
-
-            Path historyFilePath = Paths.get("HistoryPlay.txt");
-
-            Files.deleteIfExists(historyFilePath);
-            System.out.println("Đã xóa file lịch sử 'HistoryPlay.txt'.");
-
-        } catch (IOException e) {
-            System.err.println("Lỗi khi reset file lưu: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     /** (HÀM MỚI) Tiếp tục trò chơi (Continue Game) */
     private void continueGame(Stage stage) {
         try {
+            // đọc file lưu
+            ReadWriteData.loadGameData();
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
             Scene scene = new Scene(loader.load(), 800, 600);
             stage.setScene(scene);
-
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Lỗi khi tải game (hoặc chưa có file save).");

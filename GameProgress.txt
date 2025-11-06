@@ -1,8 +1,8 @@
 Level: 4
-ExistingCoins: 0
+ExistingCoins: 29
 CurrentMapLevel: 3
 PlayerX: 248.72077938642042
-PlayerY: 90.72077938642205
+PlayerY: 91.72077938642205
 Defeated: 1-1
 Defeated: 2-2
 Defeated: 3-3

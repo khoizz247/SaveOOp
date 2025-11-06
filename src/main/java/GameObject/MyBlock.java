@@ -7,10 +7,11 @@ import StartGame.GameApplication;
 import javafx.util.Duration;
 
 public class MyBlock extends Block {
+    private int life;
     private double speed;
     private double defaultWidth;
-    private double increasedWidth = 30;
-    private double maxBuffedTime = 5;
+    private double increasedWidth;
+    private double maxBuffedTime;
     private Timeline currentBuff = null;
     public MyBlock(double speed) {
         this.speed = speed;
@@ -20,10 +21,21 @@ public class MyBlock extends Block {
         super((GameApplication.WIDTH - width) / 2, 570, width, height);
         this.speed = speed;
         this.defaultWidth = width;
+        this.life = 2;
+        this.increasedWidth = 30;
+        this.maxBuffedTime = 5;
     }
 
     public void resetMyBlock() {
         setX((GameApplication.WIDTH - getWidth()) / 2);
+    }
+
+    public int getLife() {
+        return life;
+    }
+
+    public void setLife(int life) {
+        this.life = life;
     }
 
     public double getSpeed() {

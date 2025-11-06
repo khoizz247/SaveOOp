@@ -29,7 +29,7 @@ public class ManageGameBlock {
         return stateAboutToLose;
     }
 
-    public void resetGameBlock(int level) {
+    public int resetGameBlock(int level) {
         gameBlocks.clear();
 
         if (level <= 3) {
@@ -63,6 +63,7 @@ public class ManageGameBlock {
                 gameBlocks.add(new GameBlock((i % 10) * 80.0, 65 + (int)((i - 1) / 10) * 25.0, hard));
             }
         }
+        return gameBlocks.size();
     }
 
     public void addBlock() {

@@ -50,6 +50,9 @@ public class ScenePlayGame {
     private long lastFrameTime = 0;
     private static final float BLOCK_SPAWN_TIME = 2.0f;
 
+    private DialogueManager dialogueManager;
+    private int initialBlockCount = 0; // Để tính 20%
+
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -72,6 +75,7 @@ public class ScenePlayGame {
         listBuffs = new ManageBuff();
         aimingBall = new Ball(myBlock.getX() + myBlock.getWidth() / 2, myBlock.getY() - 6, 6, 1, 1, 0);
         gameSession = new GameSession();
+        dialogueManager = new DialogueManager(); // <-- KHỞI TẠO
 
         level = ReadWriteData.getLevel();
         existingCoins = ReadWriteData.getExistingCoins();
@@ -105,7 +109,7 @@ public class ScenePlayGame {
 
     public void resetObject() {
         myBlock.resetMyBlock();
-        listBlocks.resetGameBlock(currentBattleLevel);
+        initialBlockCount = listBlocks.resetGameBlock(currentBattleLevel); // <--- Chỉ cần 1 lần
         listBalls.resetBall();
         listBuffs.resetBuff();
         isAiming = true;
@@ -141,6 +145,7 @@ public class ScenePlayGame {
                 lastFrameTime = now;
 
                 if (running) {
+                    dialogueManager.update(deltaTime);
                     if (isIngame) {
                         updateInGame(deltaTime);
                         renderInGame(gc, canvas);
@@ -224,6 +229,16 @@ public class ScenePlayGame {
 
     //Xu li di chuyen cua gach
     private void updateInGame(float deltaTime) {
+
+        if (currentOpponent != null && !currentOpponent.hasSpokenTaunt() && initialBlockCount > 0) {
+            int currentBlocks = listBlocks.getNumberBlock();
+            double percentage = (double)currentBlocks / initialBlockCount;
+
+            if (currentBlocks == 1) {
+                dialogueManager.startDialogue(currentOpponent.getBattleTauntDialogue());
+                currentOpponent.setHasSpokenTaunt(true);
+            }
+        }
         if (!isAiming) {
             if (level >= 4) {
                 blockSpawnTimer += deltaTime;
@@ -274,65 +289,74 @@ public class ScenePlayGame {
         // manageNPC sẽ cập nhật tất cả NPC
         manageNPC.update(System.nanoTime());
 
-        boolean isW = pressedKeys.contains(KeyCode.W);
-        boolean isA = pressedKeys.contains(KeyCode.A);
-        boolean isS = pressedKeys.contains(KeyCode.S);
-        boolean isD = pressedKeys.contains(KeyCode.D);
-
-        if (!(isA || isD || isW || isS) || (isA && isD) || (isW && isS)) {
+        if (dialogueManager.isShowingDialogue()) {
             mainCharacter.setRunning(false);
         } else {
-            mainCharacter.setRunning(true);
+            // ... (toàn bộ code di chuyển W,A,S,D cũ) ...
+            // (Cut và Paste toàn bộ code xử lý di chuyển vào trong khối else này)
+            boolean isW = pressedKeys.contains(KeyCode.W);
+            boolean isA = pressedKeys.contains(KeyCode.A);
+            boolean isS = pressedKeys.contains(KeyCode.S);
+            boolean isD = pressedKeys.contains(KeyCode.D);
 
-            double currentX = mainCharacter.getxOnMap();
-            double currentY = mainCharacter.getyOnMap();
-            double speed = mainCharacter.getSpeed();
-            double diagonalSpeed = speed * Math.sin(Math.toRadians(45));
+            if (!(isA || isD || isW || isS) || (isA && isD) || (isW && isS)) {
+                mainCharacter.setRunning(false);
+            } else {
+                mainCharacter.setRunning(true);
 
-            double dx = 0;
-            double dy = 0;
+                double currentX = mainCharacter.getxOnMap();
+                double currentY = mainCharacter.getyOnMap();
+                double speed = mainCharacter.getSpeed();
+                double diagonalSpeed = speed * Math.sin(Math.toRadians(45));
 
-            if (isW) dy -= (isA || isD) ? diagonalSpeed : speed;
-            if (isS) dy += (isA || isD) ? diagonalSpeed : speed;
-            if (isA) dx -= (isW || isS) ? diagonalSpeed : speed;
-            if (isD) dx += (isW || isS) ? diagonalSpeed : speed;
+                double dx = 0;
+                double dy = 0;
 
-            if (isA && !isD) mainCharacter.setDirection(1);
-            else if (isD && !isA) mainCharacter.setDirection(2);
-            else if (isW && !isS) mainCharacter.setDirection(3);
-            else if (isS && !isW) mainCharacter.setDirection(0);
+                if (isW) dy -= (isA || isD) ? diagonalSpeed : speed;
+                if (isS) dy += (isA || isD) ? diagonalSpeed : speed;
+                if (isA) dx -= (isW || isS) ? diagonalSpeed : speed;
+                if (isD) dx += (isW || isS) ? diagonalSpeed : speed;
 
-            double nextX = currentX + dx;
-            double nextY = currentY + dy;
+                if (isA && !isD) mainCharacter.setDirection(1);
+                else if (isD && !isA) mainCharacter.setDirection(2);
+                else if (isW && !isS) mainCharacter.setDirection(3);
+                else if (isS && !isW) mainCharacter.setDirection(0);
 
-            // Định nghĩa hitbox cho va chạm tường
-            double hitboxWidth = mainCharacter.getSize() / 3;
-            double hitboxHeight = mainCharacter.getSize() / 4;
-            double hitboxOffsetX = (mainCharacter.getSize() - hitboxWidth) / 2;
-            double hitboxOffsetY = mainCharacter.getSize() - hitboxHeight - 5;
+                double nextX = currentX + dx;
+                double nextY = currentY + dy;
 
-            // 1. Kiểm tra va chạm TƯỜNG theo trục X
-            Rectangle characterBoundsX = new Rectangle(
-                    nextX + hitboxOffsetX,
-                    currentY + hitboxOffsetY,
-                    hitboxWidth,
-                    hitboxHeight
-            );
-            if (!manageMap.isColliding(characterBoundsX)) {
-                mainCharacter.setxOnMap(nextX);
+                // Định nghĩa hitbox cho va chạm tường
+                double hitboxWidth = mainCharacter.getSize() / 3;
+                double hitboxHeight = mainCharacter.getSize() / 4;
+                double hitboxOffsetX = (mainCharacter.getSize() - hitboxWidth) / 2;
+                double hitboxOffsetY = mainCharacter.getSize() - hitboxHeight - 5;
+
+                // 1. Kiểm tra va chạm TƯỜNG theo trục X
+                Rectangle characterBoundsX = new Rectangle(
+                        nextX + hitboxOffsetX,
+                        currentY + hitboxOffsetY,
+                        hitboxWidth,
+                        hitboxHeight
+                );
+                if (!manageMap.isColliding(characterBoundsX)) {
+                    mainCharacter.setxOnMap(nextX);
+                }
+
+                // 2. Kiểm tra va chạm TƯỜNG theo trục Y
+                Rectangle characterBoundsY = new Rectangle(
+                        mainCharacter.getxOnMap() + hitboxOffsetX,
+                        nextY + hitboxOffsetY,
+                        hitboxWidth,
+                        hitboxHeight
+                );
+                if (!manageMap.isColliding(characterBoundsY)) {
+                    mainCharacter.setyOnMap(nextY);
+                }
             }
 
-            // 2. Kiểm tra va chạm TƯỜNG theo trục Y
-            Rectangle characterBoundsY = new Rectangle(
-                    mainCharacter.getxOnMap() + hitboxOffsetX,
-                    nextY + hitboxOffsetY,
-                    hitboxWidth,
-                    hitboxHeight
-            );
-            if (!manageMap.isColliding(characterBoundsY)) {
-                mainCharacter.setyOnMap(nextY);
-            }
         }
+
+
 
 
         // Cập nhật vị trí camera (bản đồ) dựa trên vị trí MỚI của nhân vật
@@ -442,27 +466,38 @@ public class ScenePlayGame {
 
         // --- LOGIC VA CHẠM VỚI NPC ---
         for (NPC npc : manageNPC.getNpcs()) {
-
-            if (npc.isDefeated()) continue; // Bỏ qua nếu NPC đã bị hạ
+            if (npc.isDefeated()) continue;
 
             Rectangle npcBounds = new Rectangle(
-                    npc.getxOnMap(),
-                    npc.getyOnMap(),
-                    npc.getSize(),
-                    npc.getSize()
+                    npc.getxOnMap(), npc.getyOnMap(), npc.getSize(), npc.getSize()
             );
 
+            // 1. Va chạm để BẮT ĐẦU TRẬN ĐẤU
             if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
+                // Chỉ bắt đầu trận nếu không đang bận nói chuyện
+                if (!dialogueManager.isShowingDialogue()) {
+                    this.preBattleX = mainCharacter.getxOnMap();
+                    this.preBattleY = mainCharacter.getyOnMap();
 
-                this.preBattleX = mainCharacter.getxOnMap();
-                this.preBattleY = mainCharacter.getyOnMap();
-
-                isIngame = true;
-                currentOpponent = npc; // Lưu lại NPC đang đánh
-                this.currentBattleLevel = npc.getArkanoidLevel(); // Lấy level Arkanoid của NPC
-                resetObject(); // Reset màn Arkanoid
-                break; // Thoát vòng lặp khi đã tìm thấy va chạm
+                    isIngame = true;
+                    currentOpponent = npc;
+                    currentOpponent.setHasSpokenTaunt(false); // Reset cờ thoại 20%
+                    this.currentBattleLevel = npc.getArkanoidLevel();
+                    resetObject();
+                    break;
+                }
             }
+            // 2. Va chạm để NÓI CHUYỆN (vùng lớn hơn)
+            else if (playerBounds.intersects(npc.getProximityBounds().getLayoutBounds())) {
+                if (!npc.hasSpokenProximity() && !dialogueManager.isShowingDialogue()) {
+                    dialogueManager.startDialogue(npc.getProximityDialogue());
+                    npc.setHasSpokenProximity(true); // Đánh dấu đã nói
+                }
+            }
+            // 3. (Tùy chọn) Reset cờ "đã nói" nếu đi xa
+            // else {
+            //    npc.setHasSpokenProximity(false);
+            // }
         }
     }
 
@@ -496,6 +531,7 @@ public class ScenePlayGame {
         if (level >= 4) {
             gameSession.renderClock(gc, listBlocks.getStateAboutToLose(), existingCoins);
         }
+        dialogueManager.render(gc, true);
     }
 
     //Render man hinh sanh
@@ -505,6 +541,7 @@ public class ScenePlayGame {
         mainCharacter.addCharacterOnScreen(gc, map);
 
         manageNPC.render(gc, map);
+        dialogueManager.render(gc, false);
     }
 
     public boolean isIngame() {

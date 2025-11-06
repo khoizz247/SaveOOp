@@ -3,6 +3,9 @@ package GameObject;
 import LoadResource.LoadImage;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.shape.Rectangle; // Thêm import
+import java.util.List; // Thêm import
+import java.util.ArrayList; // Thêm import
 
 public class NPC extends Character {
     private Image[] idleFrames;
@@ -11,6 +14,12 @@ public class NPC extends Character {
 
     private int arkanoidLevel;
     private boolean isDefeated = false;
+
+    private List<Dialogue> proximityDialogue = new ArrayList<>();
+    private List<Dialogue> battleTauntDialogue = new ArrayList<>(); // Thoại khi 20%
+    private boolean hasSpokenProximity = false;
+    private boolean hasSpokenTaunt = false;
+    private double proximityRadius = 96;
 
     public NPC(double x, double y, double size, int arkanoidLevel, int npcType) {
         setxOnMap(x);
@@ -59,5 +68,37 @@ public class NPC extends Character {
 
     public void setDefeated(boolean defeated) {
         isDefeated = defeated;
+    }
+
+    public void setProximityDialogue(List<Dialogue> dialogues) {
+        this.proximityDialogue = dialogues;
+    }
+
+    public List<Dialogue> getProximityDialogue() {
+        return this.proximityDialogue;
+    }
+
+    public void setBattleTauntDialogue(List<Dialogue> dialogues) {
+        this.battleTauntDialogue = dialogues;
+    }
+
+    public List<Dialogue> getBattleTauntDialogue() {
+        return this.battleTauntDialogue;
+    }
+
+    public boolean hasSpokenProximity() { return hasSpokenProximity; }
+    public void setHasSpokenProximity(boolean spoken) { this.hasSpokenProximity = spoken; }
+
+    public boolean hasSpokenTaunt() { return hasSpokenTaunt; }
+    public void setHasSpokenTaunt(boolean spoken) { this.hasSpokenTaunt = spoken; }
+
+    /**
+     * Tạo một vùng chữ nhật lớn hơn NPC để kích hoạt hội thoại
+     */
+    public Rectangle getProximityBounds() {
+        double newSize = getSize() + proximityRadius;
+        double newX = getxOnMap() - (proximityRadius / 2);
+        double newY = getyOnMap() - (proximityRadius / 2);
+        return new Rectangle(newX, newY, newSize, newSize);
     }
 }

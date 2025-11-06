@@ -22,11 +22,26 @@ public class ManageNPC {
             npc.setDefeated(ReadWriteData.isNpcDefeated(1, 1));
             npcs.add(npc);
 
+            npc.setProximityDialogue(List.of(
+                    new Dialogue("Quái Map 1", "Ngươi nghĩ ngươi có thể thắng ta sao?", 3.0),
+                    new Dialogue("Quái Map 1", "Hãy xem đây!", 2.0)
+            ));
+            npc.setBattleTauntDialogue(List.of(
+                    new Dialogue("Quái Map 1", "Không thể nào! Ngươi quá mạnh!", 4.0)
+            ));
+
         } else if (mapLevel == 2) {
             // NPC Map 2, Arkanoid Level 2
             NPC npc = new NPC(23*16, 9*16, 70, 2, 2);
             npc.setDefeated(ReadWriteData.isNpcDefeated(2, 2));
             npcs.add(npc);
+            npc.setProximityDialogue(List.of(
+                    new Dialogue("Quái Map 1", "Ngươi nghĩ ngươi có thể thắng ta sao?", 3.0),
+                    new Dialogue("Quái Map 1", "Hãy xem đây!", 2.0)
+            ));
+            npc.setBattleTauntDialogue(List.of(
+                    new Dialogue("Quái Map 1", "Không thể nào! Ngươi quá mạnh!", 4.0)
+            ));
 
         } else if (mapLevel == 3) {
             // --- LOGIC MỚI CHO MAP 3 ---
@@ -36,6 +51,13 @@ public class ManageNPC {
             boolean boss1Defeated = ReadWriteData.isNpcDefeated(3, 3); // Kiểm tra "3-3"
             boss1.setDefeated(boss1Defeated);
             npcs.add(boss1);
+            boss1.setProximityDialogue(List.of(
+                    new Dialogue("Quái Map 1", "Ngươi nghĩ ngươi có thể thắng ta sao?", 3.0),
+                    new Dialogue("Quái Map 1", "Hãy xem đây!", 2.0)
+            ));
+            boss1.setBattleTauntDialogue(List.of(
+                    new Dialogue("Quái Map 1", "Không thể nào! Ngươi quá mạnh!", 4.0)
+            ));
 
             // 2. NẾU boss 1 đã bị hạ (tải từ file save), THÌ tải NPC thứ hai (level 4)
             if (boss1Defeated) {

@@ -275,10 +275,10 @@ public class ScenePlayGame {
             listBuffs.setTimeCreateObstacle(myBlock.getX(), myBlock.getWidth(), level, deltaTime);
         }
         // --- Logic chung (Luôn chạy) ---
-        if (pressedKeys.contains(KeyCode.LEFT)) {
+        if (pressedKeys.contains(KeyCode.A)) {
             myBlock.setX(myBlock.getX() - myBlock.getSpeed());
         }
-        if (pressedKeys.contains(KeyCode.RIGHT)) {
+        if (pressedKeys.contains(KeyCode.D)) {
             myBlock.setX(myBlock.getX() + myBlock.getSpeed());
         }
         myBlock.collisionHandling();

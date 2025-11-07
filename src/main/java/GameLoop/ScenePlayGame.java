@@ -211,15 +211,19 @@ public class ScenePlayGame {
                                 blockSpawnTimer = BLOCK_SPAWN_TIME;
                             }
                         }
-
-                        if ((listBalls.getNumOfBalls() == 0 && !isAiming) || myBlock.getLife() <= 0) {
-                            if (level >= 4) {
-                                existingCoins += ManageBuff.extraCoins;
-                                GameStats.addGameSession(gameSession);
+                        if (listBalls.getNumOfBalls() == 0 && !isAiming) {
+                            myBlock.setLife(myBlock.getLife() - 1);
+                            if (myBlock.getLife() <= 0) {
+                                if (level >= 4) {
+                                    existingCoins += ManageBuff.extraCoins;
+                                    GameStats.addGameSession(gameSession);
+                                }
+                                isIngame = false;
+                                mainCharacter.setxOnMap(preBattleX);
+                                mainCharacter.setyOnMap(preBattleY + 40);
+                            } else {
+                                isAiming = true;
                             }
-                            isIngame = false;
-                            mainCharacter.setxOnMap(preBattleX);
-                            mainCharacter.setyOnMap(preBattleY + 40);
                         }
                     } else {
                         updateInLoppy();

@@ -60,7 +60,6 @@ public class ControlLostScene {
                 stage.show();
 
             } catch (Exception ex) {
-                System.err.println("❌ Lỗi khi load ingame-view.fxml: " + ex.getMessage());
                 ex.printStackTrace();
             }
         });

@@ -11,9 +11,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
 import java.util.HashSet;
 import java.util.Set;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 
 public class ScenePlayGame {
@@ -55,6 +58,8 @@ public class ScenePlayGame {
     private boolean isShopUIActive = false; // <-- MỚI
     private NPC currentShopNPC = null; // <-- MỚI (Lưu NPC shop đang tương tác)// <-- MỚI
     private int initialBlockCount = 0; // Để tính 20%
+
+    private Canvas gameCanvas;
 
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -136,6 +141,7 @@ public class ScenePlayGame {
 
     //Vong lap chinh
     private void startLevel(GraphicsContext gc, Canvas canvas) {
+        this.gameCanvas = canvas;
         lastFrameTime = 0;
         gameLoop = new AnimationTimer() {
             @Override
@@ -213,14 +219,20 @@ public class ScenePlayGame {
                         }
                         if (listBalls.getNumOfBalls() == 0 && !isAiming) {
                             myBlock.setLife(myBlock.getLife() - 1);
+
                             if (myBlock.getLife() <= 0) {
                                 if (level >= 4) {
                                     existingCoins += ManageBuff.extraCoins;
                                     GameStats.addGameSession(gameSession);
                                 }
+
                                 isIngame = false;
+
                                 mainCharacter.setxOnMap(preBattleX);
                                 mainCharacter.setyOnMap(preBattleY + 40);
+
+                                showLostScene();
+
                             } else {
                                 isAiming = true;
                             }
@@ -668,10 +680,25 @@ public class ScenePlayGame {
     }
 
     public void quitToMainGame() {
-        isIngame = false;    // quay lại màn hình RPG
-        running = true;      // đảm bảo vòng lặp tiếp tục chạy
+        isIngame = false;
+        running = true;
         mainCharacter.setxOnMap(firstBattleX);
         mainCharacter.setyOnMap(firstBattleY);
+    }
+
+    private void showLostScene() {
+        Platform.runLater(() -> {
+            try {
+                Stage stage = (Stage) gameCanvas.getScene().getWindow();
+
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/lost-view.fxml"));
+                Scene lostScene = new Scene(loader.load(), 800, 600);
+
+                stage.setScene(lostScene);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
 

@@ -129,7 +129,6 @@ public class ControlHomeScene {
         try {
             LoadVideo.playIntroVideo(stage, () -> {
                 try {
-                    // 🧩 Reset toàn bộ dữ liệu về mặc định
                     ReadWriteData.resetAllGameData();
 
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
@@ -147,7 +146,6 @@ public class ControlHomeScene {
     /** (HÀM MỚI) Tiếp tục trò chơi (Continue Game) */
     private void continueGame(Stage stage) {
         try {
-            // đọc file lưu
             ReadWriteData.loadGameData();
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));

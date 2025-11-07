@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Scene.ControlLostScene"
+            prefWidth="800.0" prefHeight="600.0"
+            style="-fx-background-color: black;">
+
+    <VBox alignment="CENTER"
+          AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <Label fx:id="loseLabel"
+               text=""
+               style="-fx-font-family: 'Papyrus';
+                      -fx-font-size: 72px;
+                      -fx-text-fill: linear-gradient(to bottom, #ff4040, #b30000);
+                      -fx-font-weight: bold;" />
+    </VBox>
+
+</AnchorPane>

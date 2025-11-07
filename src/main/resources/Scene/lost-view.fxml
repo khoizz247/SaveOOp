@@ -21,5 +21,4 @@
                       -fx-text-fill: linear-gradient(to bottom, #ff4040, #b30000);
                       -fx-font-weight: bold;" />
     </VBox>
-
 </AnchorPane>

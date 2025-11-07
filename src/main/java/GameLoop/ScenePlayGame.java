@@ -695,6 +695,8 @@ public class ScenePlayGame {
                 Scene lostScene = new Scene(loader.load(), 800, 600);
 
                 stage.setScene(lostScene);
+                stage.show();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

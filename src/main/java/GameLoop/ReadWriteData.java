@@ -181,7 +181,6 @@ public class ReadWriteData {
     public static void resetAllGameData() {
         try {
             Files.deleteIfExists(Paths.get("GameProgress.txt"));
-            Files.deleteIfExists(Paths.get("HistoryPlay.txt"));
 
             level = 1;
             existingCoins = 0;

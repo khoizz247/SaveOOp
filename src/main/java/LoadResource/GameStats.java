@@ -3,9 +3,7 @@ package LoadResource;
 import GameObject.GameSession;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,30 +26,27 @@ public class GameStats {
     }
 
     public static void loadStats() {
+        historyPlay.clear(); // dọn danh sách cũ để không bị trùng
         try {
-            // KIỂM TRA NẾU FILE TỒN TẠI
             if (Files.exists(filePath)) {
-                System.out.println("File " + filePath + " đã tồn tại. Đang đọc...");
                 List<String> lines = Files.readAllLines(filePath);
 
                 if (lines.isEmpty()) {
-                    System.out.println("File rỗng, trả về stats mặc định.");
                     maxScore = 0;
+                    return;
                 }
 
-                // 1. Đọc dòng đầu tiên (Điểm cao nhất)
+                // đọc điểm cao nhất ở dòng đầu
                 try {
                     maxScore = Integer.parseInt(lines.getFirst());
                 } catch (NumberFormatException e) {
-                    System.err.println("Dòng điểm cao nhất bị lỗi. Dùng điểm 0.");
                     maxScore = 0;
                 }
 
-                // 2. Đọc các dòng còn lại (Các lượt chơi)
+                // đọc lịch sử chơi
                 for (int i = 1; i < lines.size(); i++) {
                     String line = lines.get(i);
-                    String[] parts = line.split("/|");
-
+                    String[] parts = line.split("\\|");
                     if (parts.length == 3) {
                         try {
                             int score = Integer.parseInt(parts[0]);
@@ -59,60 +54,60 @@ public class GameStats {
                             String date = parts[2];
                             historyPlay.add(new GameSession(score, time, date));
                         } catch (NumberFormatException e) {
-                            System.err.println("Bỏ qua dòng lượt chơi bị lỗi: " + line);
+                            System.err.println("Bỏ qua dòng lỗi: " + line);
                         }
                     }
                 }
             } else {
-                // --- FILE KHÔNG TỒN TẠI: TẠO FILE ---
-                System.out.println("File " + filePath + " không tồn tại. Đang tạo file mới...");
-                Files.createFile(filePath);
-
+                // nếu file chưa có thì tạo mới
                 Files.write(filePath, List.of("0"));
-                System.out.println("Đã tạo file với điểm cao nhất mặc định là 0.");
+                maxScore = 0;
             }
         } catch (IOException e) {
-            System.err.println("Lỗi I/O nghiêm trọng: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Lỗi khi đọc file: " + e.getMessage());
         }
     }
 
     /**
-     * Hàm để lưu đối tượng GameStats trở lại file (ghi đè).
+     * Lưu toàn bộ lịch sử: lượt mới lên trên cùng, cũ xuống dưới.
      */
     public static void saveStats() {
-        System.out.println("Đang lưu stats vào file " + filePath + "...");
         List<String> lines = new ArrayList<>();
 
-        // 1. Thêm điểm cao nhất vào dòng đầu tiên
+        // dòng đầu là maxScore
         lines.add(String.valueOf(maxScore));
 
-        // 2. Thêm tất cả các lượt chơi (dùng hàm toString() của GameSession)
+        // lượt mới nhất trước
         for (GameSession session : historyPlay) {
-            String info = String.format("%d|%.5f|%s", session.getScore(), session.getTimePlay(), session.getDateTimePlay());
+            String info = String.format("%d|%.5f|%s",
+                    session.getScore(),
+                    session.getTimePlay(),
+                    session.getDateTimePlay());
             lines.add(info);
         }
+
         try {
-            // Ghi đè toàn bộ file với List các dòng mới
             Files.write(filePath, lines);
-            System.out.println("Lưu stats thành công!");
         } catch (IOException e) {
-            System.err.println("Lỗi khi lưu file: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println(" Lỗi khi lưu file: " + e.getMessage());
         }
     }
 
+    /**
+     * Thêm lượt chơi mới vào đầu danh sách.
+     */
     public static void addGameSession(GameSession gameSession) {
-        int i = 0;
-        for (i = 0; i < historyPlay.size(); i++) {
-            if (historyPlay.get(i).getScore() < gameSession.getScore()) {
-                break;
-            } else if (historyPlay.get(i).getScore() == gameSession.getScore()) {
-                if (historyPlay.get(i).getTimePlay() > gameSession.getTimePlay()) {
-                    break;
-                }
-            }
+        // thêm lượt chơi mới lên đầu
+        historyPlay.add(0, new GameSession(gameSession.getScore(),
+                gameSession.getTimePlay(),
+                gameSession.getDateTimePlay()));
+
+        // cập nhật maxScore nếu cần
+        if (gameSession.getScore() > maxScore) {
+            maxScore = gameSession.getScore();
         }
-        historyPlay.add(i, new GameSession(gameSession.getScore(), gameSession.getTimePlay()));
+
+        // lưu lại toàn bộ file
+        saveStats();
     }
 }

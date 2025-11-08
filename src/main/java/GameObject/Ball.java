@@ -69,8 +69,8 @@ public class Ball extends Circle{
             }
             if (collidedBlock.handleBlock()) {
                 gameSession.addScore(collidedBlock.getTypeBlock());
-                listBuffs.addBuff(collidedBlock.getX(), collidedBlock.getY(),
-                        collidedBlock.getWidth(), collidedBlock.getHeight(), "Coin", this);
+                listBuffs.spawnBuff(1, collidedBlock.getX(), collidedBlock.getY(),
+                        collidedBlock.getWidth(), collidedBlock.getHeight(), this);
                 blocks.remove(collidedBlock);
             }
         }

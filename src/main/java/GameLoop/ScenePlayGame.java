@@ -41,14 +41,14 @@ public class ScenePlayGame {
     private NPC currentOpponent = null;
     private int currentMapLevel = 1;
     private int currentBattleLevel;
-    private Ball aimingBall;            //Thêm Ball ngắm bắn.
-    private boolean isAiming = true;    //Biến xác nhận ngắm bắn.
-    private boolean isBuffBullet = false;//Biến ngắm bắn lúc có buff.
-    private int existingCoins;            //Thêm thuộc tính xu.
+    private Ball aimingBall;
+    private boolean isAiming = true;
+    private boolean isBuffBullet = false;
+    private int existingCoins;
 
     private float blockSpawnTimer = 0.0f;
     private long lastFrameTime = 0;
-    private static final float BLOCK_SPAWN_TIME = 2.0f;
+    private static float BLOCK_SPAWN_TIME = 30.0f;
 
     private DialogueManager dialogueManager;
     private ShopManager shopManager;
@@ -119,9 +119,6 @@ public class ScenePlayGame {
         isBuffBullet = false;
         lastFrameTime = 0;
         gameSession.reset();
-
-        System.out.println("xu hien co: " + existingCoins);
-        System.out.println("Reset: " + level);
     }
 
     public void saveData() {
@@ -213,17 +210,16 @@ public class ScenePlayGame {
                         }
                         if (listBalls.getNumOfBalls() == 0 && !isAiming) {
                             myBlock.setLife(myBlock.getLife() - 1);
-                            if (myBlock.getLife() <= 0) {
-                                if (level >= 4) {
-                                    existingCoins += ManageBuff.extraCoins;
-                                    GameStats.addGameSession(gameSession);
-                                }
-                                isIngame = false;
-                                mainCharacter.setxOnMap(preBattleX);
-                                mainCharacter.setyOnMap(preBattleY + 40);
-                            } else {
-                                isAiming = true;
+                            isAiming = true;
+                        }
+                        if (myBlock.getLife() <= 0) {
+                            if (level >= 4) {
+                                existingCoins += ManageBuff.extraCoins;
+                                GameStats.addGameSession(gameSession);
                             }
+                            isIngame = false;
+                            mainCharacter.setxOnMap(preBattleX);
+                            mainCharacter.setyOnMap(preBattleY + 40);
                         }
                     } else {
                         updateInLoppy();
@@ -236,6 +232,7 @@ public class ScenePlayGame {
     }
 
     // --- HÀM MỚI: NHẬN INPUT TỪ ControlGameScene ---
+
     /**
      * Xử lý input riêng cho Shop UI (ấn 1 lần)
      */
@@ -260,7 +257,7 @@ public class ScenePlayGame {
 
         if (currentOpponent != null && !currentOpponent.hasSpokenTaunt() && initialBlockCount > 0) {
             int currentBlocks = listBlocks.getNumberBlock();
-            double percentage = (double)currentBlocks / initialBlockCount;
+            double percentage = (double) currentBlocks / initialBlockCount;
 
             if (currentBlocks == 1) {
                 dialogueManager.startDialogue(currentOpponent.getBattleTauntDialogue());
@@ -298,7 +295,7 @@ public class ScenePlayGame {
 
             }
         }
-        if (blockSpawnTimer >= BLOCK_SPAWN_TIME) {
+        if (blockSpawnTimer >= (BLOCK_SPAWN_TIME - (int) (gameSession.getScore() / 30))) {
             listBlocks.addBlock();
             blockSpawnTimer = 0.0f;
         }
@@ -552,9 +549,9 @@ public class ScenePlayGame {
                     }
                 }
                 //3. (Tùy chọn) Reset cờ "đã nói" nếu đi xa
-                 else {
+                else {
                     npc.setHasSpokenProximity(false);
-                 }
+                }
             }
         }
     }
@@ -659,6 +656,7 @@ public class ScenePlayGame {
     public void addPressedKey(KeyCode code) {
         pressedKeys.add(code);
     }
+
     public void removePressedKey(KeyCode code) {
         pressedKeys.remove(code);
     }

@@ -9,8 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class Buff extends Circle{
-    private String buffType;
-    private Ball ballCreateBuff;
+    private final String buffType;
+    private final Ball ballCreateBuff;
     private int state = 0;
 
     public Buff(double x, double y, double radius, double speed, double dx, double dy, String buffType) {

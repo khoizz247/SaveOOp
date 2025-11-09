@@ -22,6 +22,7 @@ public class ReadWriteData {
     private static int baseLife = 2;
     private static double baseWidth = 70.0;
     private static double baseSpeed = 4.0;
+    private static double baseLucky = 1.0;
 
     static {
         loadGameData();
@@ -35,6 +36,13 @@ public class ReadWriteData {
 
     public static double getBaseSpeed() { return baseSpeed; }
     public static void setBaseSpeed(double speed) { baseSpeed = speed; }
+
+    public static double getBaseLucky() {
+        return baseLucky;
+    }
+    public static void setBaseLucky(double baseLucky) {
+        ReadWriteData.baseLucky = baseLucky;
+    }
 
     public static int getCurrentMapLevel() {
         return currentMapLevel;
@@ -134,6 +142,7 @@ public class ReadWriteData {
         baseLife = 2;     // Mặc định
         baseWidth = 70.0;   // Mặc định
         baseSpeed = 4.0;    // Mặc định
+        baseLucky = 1.0;
         defeatedNpcIds.clear();
         String line;
         while ((line = br.readLine()) != null) {
@@ -163,6 +172,8 @@ public class ReadWriteData {
                     baseWidth = Double.parseDouble(value);
                 } else if (key.equals("BaseSpeed")) {
                     baseSpeed = Double.parseDouble(value);
+                } else if (key.equals("BaseLucky")) {
+                    baseLucky = Double.parseDouble(value);
                 }
             }
         }
@@ -194,6 +205,8 @@ public class ReadWriteData {
             bw.write("BaseWidth: " + baseWidth);
             bw.newLine();
             bw.write("BaseSpeed: " + baseSpeed);
+            bw.newLine();
+            bw.write("BaseLucky: " + baseLucky);
             bw.newLine();
 
             for (String id : defeatedNpcIds) {

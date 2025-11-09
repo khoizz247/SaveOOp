@@ -295,7 +295,7 @@ public class ScenePlayGame {
 
             }
         }
-        if (blockSpawnTimer >= (BLOCK_SPAWN_TIME - (int) (gameSession.getScore() / 30))) {
+        if (blockSpawnTimer >= (BLOCK_SPAWN_TIME - (int) (gameSession.getScore() / 25))) {
             listBlocks.addBlock();
             blockSpawnTimer = 0.0f;
         }

@@ -1,5 +1,6 @@
 package GameObject;
 
+import GameLoop.ReadWriteData;
 import StartGame.GameApplication;
 import java.awt.*;
 import java.util.List;
@@ -69,7 +70,7 @@ public class Ball extends Circle{
             }
             if (collidedBlock.handleBlock()) {
                 gameSession.addScore(collidedBlock.getTypeBlock());
-                listBuffs.spawnBuff(1, collidedBlock.getX(), collidedBlock.getY(),
+                listBuffs.spawnBuff(ReadWriteData.getBaseLucky(), collidedBlock.getX(), collidedBlock.getY(),
                         collidedBlock.getWidth(), collidedBlock.getHeight(), this);
                 blocks.remove(collidedBlock);
             }

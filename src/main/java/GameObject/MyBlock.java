@@ -22,13 +22,6 @@ public class MyBlock extends Block {
     private Timeline currentBlinkingEffect;
     private DoubleProperty opacity = new SimpleDoubleProperty(1.0);
     private final Image image;
-//    public MyBlock(double speed) {
-//        this.speed = speed;
-//        this.image = LoadImage.getPaddle();
-//        life = 2;
-//        increasedWidth = 30;
-//        maxBuffedTime = 5;
-//    }
 
     public MyBlock(double width, double height, double speed) {
         // --- ĐÃ SỬA LỖI ---

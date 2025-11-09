@@ -238,7 +238,7 @@ public class ScenePlayGame {
      */
     public void handleShopInput(KeyCode code) {
         if (isShopUIActive) {
-            shopManager.handleInput(code);
+            existingCoins = shopManager.handleInput(code, existingCoins);
 
             // Nếu shop vừa đóng (sau khi mua / ấn ESC)
             if (!shopManager.isShopOpen()) {
@@ -597,7 +597,7 @@ public class ScenePlayGame {
 
         manageNPC.render(gc, map);
         dialogueManager.render(gc, false);
-        shopManager.render(gc);
+        shopManager.render(gc, existingCoins);
     }
 
     public boolean isIngame() {

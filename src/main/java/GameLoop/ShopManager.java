@@ -43,60 +43,57 @@ public class ShopManager {
     }
 
     // Xử lý input (UP, DOWN, ENTER)
-    public void handleInput(KeyCode code) {
-        // Nếu đang hiện thông báo thì không cho làm gì
-        if (feedbackDialogue != null) return;
+    public int handleInput(KeyCode code, int existingCoins) {
+        int currentCoins = existingCoins;
+        if (feedbackDialogue != null) return currentCoins;
 
         if (code == KeyCode.UP || code == KeyCode.W) {
             selectedOption = (selectedOption - 1 + options.length) % options.length;
         } else if (code == KeyCode.DOWN || code == KeyCode.S) {
             selectedOption = (selectedOption + 1) % options.length;
         } else if (code == KeyCode.ENTER || code == KeyCode.SPACE) {
-            purchaseSelectedOption();
+            currentCoins = purchaseSelectedOption(currentCoins);
         } else if (code == KeyCode.ESCAPE) {
             closeShop();
         }
+        return currentCoins;
     }
 
-    private void purchaseSelectedOption() {
-        int currentCoins = ReadWriteData.getExistingCoins();
+    private int purchaseSelectedOption(int coins) {
+        int currentCoins = coins;
 
         if (currentCoins < cost) {
             // Không đủ tiền
             showFeedback("Không đủ xu!", 2.0);
-            return;
-        }
+        } else {
+            // Trừ tiền
+            currentCoins -= cost;
 
-        // Trừ tiền
-        ReadWriteData.setExistingCoins(currentCoins - cost);
-
-        // Nâng cấp
-        switch (selectedOption) {
-            case 0: // Tăng Life
-                ReadWriteData.setBaseLife(ReadWriteData.getBaseLife() + 1);
-                showFeedback("Đã tăng Mạng!", 2.0);
-                break;
-            case 1: // Tăng Width
-                ReadWriteData.setBaseWidth(ReadWriteData.getBaseWidth() + 10.0); // Tăng 10px
-                showFeedback("Đã tăng Độ Rộng!", 2.0);
-                break;
-            case 2: // Tăng Speed
-                ReadWriteData.setBaseSpeed(ReadWriteData.getBaseSpeed() + 0.5); // Tăng 0.5
-                showFeedback("Đã tăng Tốc Độ!", 2.0);
-                break;
-            case 3:
-                ReadWriteData.setBaseLucky(ReadWriteData.getBaseLucky() + 0.1);
-                showFeedback("Đã tăng May Mắn", 2.0);
+            // Nâng cấp
+            switch (selectedOption) {
+                case 0: // Tăng Life
+                    ReadWriteData.setBaseLife(ReadWriteData.getBaseLife() + 1);
+                    showFeedback("Đã tăng Mạng!", 2.0);
+                    break;
+                case 1: // Tăng Width
+                    ReadWriteData.setBaseWidth(ReadWriteData.getBaseWidth() + 10.0); // Tăng 10px
+                    showFeedback("Đã tăng Độ Rộng!", 2.0);
+                    break;
+                case 2: // Tăng Speed
+                    ReadWriteData.setBaseSpeed(ReadWriteData.getBaseSpeed() + 0.5); // Tăng 0.5
+                    showFeedback("Đã tăng Tốc Độ!", 2.0);
+                    break;
+                case 3:
+                    ReadWriteData.setBaseLucky(ReadWriteData.getBaseLucky() + 0.1);
+                    showFeedback("Đã tăng May Mắn", 2.0);
+            }
+            int map = ReadWriteData.getCurrentMapLevel();
+            if (map == 1 || map == 2) {
+                ReadWriteData.addDefeatedNpc(map, 0);
+                System.out.println("Shop map " + map + " đã bị đánh dấu là 'đã dùng'.");
+            }
         }
-        int map = ReadWriteData.getCurrentMapLevel();
-        if (map == 1 || map == 2) {
-            // Shop NPC có arkanoidLevel = 0 (như đã định nghĩa trong ManageNPC)
-            ReadWriteData.addDefeatedNpc(map, 0);
-            System.out.println("Shop map " + map + " đã bị đánh dấu là 'đã dùng'.");
-        }
-
-        // Lưu game ngay lập tức
-        ReadWriteData.saveGameData();
+        return currentCoins;
     }
 
     // Hiển thị thông báo nhỏ
@@ -105,7 +102,7 @@ public class ShopManager {
         feedbackTimer = duration;
     }
 
-    public void render(GraphicsContext gc) {
+    public void render(GraphicsContext gc, int existingCoins) {
         if (!isShopOpen) return;
 
         double canvasWidth = gc.getCanvas().getWidth();
@@ -133,7 +130,7 @@ public class ShopManager {
 
         // Hiển thị tiền
         gc.setFont(Font.font("Arial", 20));
-        gc.fillText("Số xu của bạn: " + ReadWriteData.getExistingCoins(), boxX + 20, boxY + 90);
+        gc.fillText("Số xu của bạn: " + existingCoins, boxX + 20, boxY + 90);
 
         // Hiển thị các lựa chọn
         for (int i = 0; i < options.length; i++) {

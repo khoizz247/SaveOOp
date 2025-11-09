@@ -1,5 +1,6 @@
 package Scene;
 
+import GameLoop.ScenePlayGame;
 import LoadResource.LoadVideo;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -148,9 +149,14 @@ public class ControlHomeScene {
         try {
             ReadWriteData.loadGameData();
 
+            ScenePlayGame.currentMapLevel = ReadWriteData.getCurrentMapLevel();
+            System.out.println("⚙️ Tiếp tục game ở màn: " + ScenePlayGame.currentMapLevel);
+
+            // 3️⃣ Load scene game
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
             Scene scene = new Scene(loader.load(), 800, 600);
             stage.setScene(scene);
+
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Lỗi khi tải game (hoặc chưa có file save).");

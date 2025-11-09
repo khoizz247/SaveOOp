@@ -17,7 +17,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 public class ScenePlayGame {
     private final Set<KeyCode> pressedKeys = new HashSet<>();
@@ -42,7 +43,7 @@ public class ScenePlayGame {
     private double firstBattleX = 21 * 32;
     private double firstBattleY = 48 * 32;
     private NPC currentOpponent = null;
-    private int currentMapLevel = 1;
+    public static int currentMapLevel = 1;
     private int currentBattleLevel;
     private Ball aimingBall;            //Thêm Ball ngắm bắn.
     private boolean isAiming = true;    //Biến xác nhận ngắm bắn.
@@ -136,7 +137,6 @@ public class ScenePlayGame {
         ReadWriteData.setPlayerX(mainCharacter.getxOnMap());
         ReadWriteData.setPlayerY(mainCharacter.getyOnMap());
         ReadWriteData.saveGameData();
-
     }
 
     //Vong lap chinh
@@ -199,6 +199,11 @@ public class ScenePlayGame {
 
                                             // Kích hoạt spawn quái (ví dụ: hạ boss 3 sẽ spawn boss 4)
                                             manageNPC.onNpcDefeated(currentOpponent);
+
+                                            // --- SỬA LỖI: GỌI LƯU GAME NGAY LẬP TỨC ---
+                                            System.out.println("Lưu game sau khi tăng level... Level Arkanoid mới: " + level);
+                                            saveData(); // Gọi hàm lưu game của chính bạn
+                                            // -------------------------------------------
                                         }
 
                                         // ĐẶT LẠI VỊ TRÍ (VỀ CHỖ CŨ)
@@ -582,6 +587,15 @@ public class ScenePlayGame {
     //Render man hinh game
     private void renderInGame(GraphicsContext gc, Canvas canvas) {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        Image bg;
+        switch (level) {
+            case 1 -> bg = LoadImage.getArkanoidBg1();
+            case 2 -> bg = LoadImage.getArkanoidBg2();
+            case 3 -> bg = LoadImage.getArkanoidBg3();
+            case 4 -> bg = LoadImage.getArkanoidBg4();
+            default -> bg = LoadImage.getArkanoidBg1();
+        }
+        gc.drawImage(bg, 0, 0, GameApplication.WIDTH, GameApplication.HEIGHT);
         for (int i = 1; i <= myBlock.getLife(); i++) {
             gc.drawImage(LoadImage.getHeart(), 10 + (i - 1) * 25, 570, 20, 20);
         }
@@ -597,7 +611,9 @@ public class ScenePlayGame {
         }
         gc.setFill(Color.color(0, 0, 0, 0.5));
         gc.fillRect(0, 0, GameApplication.WIDTH, 65);
-
+        gc.drawImage(LoadImage.getHealthBar(), 0, 0);
+        LoadImage.drawHealthBarWithMonster(gc, level);
+        System.out.println("Current level = " + level);
         if (level >= 4) {
             gameSession.renderClock(gc, listBlocks.getStateAboutToLose(), existingCoins);
         }

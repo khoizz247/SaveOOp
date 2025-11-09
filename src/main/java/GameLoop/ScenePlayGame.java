@@ -611,9 +611,12 @@ public class ScenePlayGame {
         }
         gc.setFill(Color.color(0, 0, 0, 0.5));
         gc.fillRect(0, 0, GameApplication.WIDTH, 65);
-        gc.drawImage(LoadImage.getHealthBar(), 0, 0);
-        LoadImage.drawHealthBarWithMonster(gc, level);
-        System.out.println("Current level = " + level);
+
+        if(level < 4) {
+            gc.drawImage(LoadImage.getHealthBar(), 0, 0);
+            LoadImage.drawHealthBarWithMonster(gc, level);
+        }
+
         if (level >= 4) {
             gameSession.renderClock(gc, listBlocks.getStateAboutToLose(), existingCoins);
         }
@@ -677,7 +680,6 @@ public class ScenePlayGame {
         pressedKeys.clear();
 
         isIngame = true;
-        //level = 1;
         running = true;
 
         if (gameLoop != null) gameLoop.stop();

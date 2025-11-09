@@ -86,20 +86,37 @@ public class GameSession {
     public void renderClock(GraphicsContext gc, int stateAboutToLose, int existingCoins) {
         GameStats.setMaxScore(Math.max(GameStats.getMaxScore(), score));
 
-        String scoreText = "Score: " + score;
-        String timeText = "Time: " + getFormattedPlayTime();
-        String maxScoreText = "Highest Score: " + GameStats.getMaxScore();
-        String coin = "Coin: " + existingCoins + " + " + ManageBuff.extraCoins;
+        gc.drawImage(LoadImage.getStaticBar(), 0, 0);
+
+        String timeText = getFormattedPlayTime();
+        String scoreText = "" + score;
+        String maxScoreText = "" + GameStats.getMaxScore();
+        String existingCoinsText = "" + existingCoins;
+        String extraCoinsText = "" + ManageBuff.extraCoins;
+
+        Font fontNormal = new Font("Papyrus", 18);
+        Font fontBigScore = new Font("Papyrus", 48);
 
         gc.setFill(Color.WHITE);
-        gc.setFont(new Font("Arial", 20));
         gc.setLineWidth(1);
 
-        gc.fillText(scoreText, 10, 25);
-        gc.fillText(timeText, 150, 25);
-        gc.fillText(maxScoreText, 10, 50);
-        gc.fillText(coin, 600, 25);
-        gc.fillText(dateTimePlay, 400, 50);
+        gc.setTextAlign(javafx.scene.text.TextAlignment.LEFT);
+
+        gc.setFont(fontNormal);
+        gc.fillText(timeText, 35, 25);
+
+        gc.setFont(fontNormal);
+        gc.fillText(maxScoreText, 35, 58);
+
+        gc.setFont(fontNormal);
+        gc.fillText(existingCoinsText, 725, 40);
+        gc.fillText(extraCoinsText, 768, 40);
+
+        gc.setFont(fontBigScore);
+        gc.setTextAlign(javafx.scene.text.TextAlignment.CENTER);
+        gc.fillText(scoreText, 400, 50);
+
+        gc.setTextAlign(javafx.scene.text.TextAlignment.LEFT);
 
         if (stateAboutToLose >= 1 && (int) (timePlay * 5) % 2 == 0 ) {
             gc.drawImage(LoadImage.getLine()[1], 0, 435);

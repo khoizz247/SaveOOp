@@ -41,6 +41,8 @@ public class LoadImage {
 
     private static Image healthBar;
 
+    private static Image StaticBar;
+
     private static Image[] npcMap1Idle; // NPC Map 1
     private static Image[] npcMap2Idle;  // NPC Map 2
     private static Image[] npcMap3Idle;  // NPC Map 3
@@ -157,6 +159,8 @@ public class LoadImage {
 
     public static Image getArkanoidBg4() { return arkanoidBg4; }
 
+    public static Image getStaticBar() { return StaticBar; }
+
     private static void loadNpcImages() {
         npcMap3Idle = loadCharFrame("/Image/NPC/npc_map3_idle_%d.png", 6);
         npcMap1Idle = loadCharFrame("/Image/NPC/idle_000%d.png", 8);
@@ -225,6 +229,7 @@ public class LoadImage {
         line = loadCharFrame("/Image/background/line_%d.png", 2);
         paddle = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Block/paddle.png")));
         healthBar = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/HealthBar/health_bar.png")));
+        StaticBar = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/StaticBar/StaticBar.png")));
         loadArkanoidBackgrounds();
     }
 

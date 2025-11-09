@@ -9,7 +9,7 @@ import javafx.scene.text.Font;
 public class ShopManager {
     private boolean isShopOpen = false;
     private int selectedOption = 0; // 0 = Life, 1 = Width, 2 = Speed
-    private String[] options = {"Tăng Mạng", "Tăng Độ Rộng", "Tăng Tốc Độ"};
+    private String[] options = {"Tăng Mạng", "Tăng Độ Rộng", "Tăng Tốc Độ", "Tăng May Mắn"};
     private int cost = 1; // Chi phí (để test)
 
     // Dùng để hiển thị thông báo (mua thành công / thất bại)
@@ -84,6 +84,9 @@ public class ShopManager {
                 ReadWriteData.setBaseSpeed(ReadWriteData.getBaseSpeed() + 0.5); // Tăng 0.5
                 showFeedback("Đã tăng Tốc Độ!", 2.0);
                 break;
+            case 3:
+                ReadWriteData.setBaseLucky(ReadWriteData.getBaseLucky() + 0.1);
+                showFeedback("Đã tăng May Mắn", 2.0);
         }
         int map = ReadWriteData.getCurrentMapLevel();
         if (map == 1 || map == 2) {
@@ -114,7 +117,7 @@ public class ShopManager {
 
         // Khung Shop
         double boxWidth = 400;
-        double boxHeight = 300;
+        double boxHeight = 330;
         double boxX = (canvasWidth - boxWidth) / 2;
         double boxY = (canvasHeight - boxHeight) / 2;
 

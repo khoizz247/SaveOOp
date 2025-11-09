@@ -5,6 +5,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import java.util.Objects;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 public class LoadImage {
     private static Image[] idleAhead;
@@ -30,6 +33,15 @@ public class LoadImage {
     private static Image map1;
     private static Image map2;
     private static Image map3;
+
+    private static Image arkanoidBg1;
+    private static Image arkanoidBg2;
+    private static Image arkanoidBg3;
+    private static Image arkanoidBg4;
+
+    private static Image healthBar;
+
+    private static Image StaticBar;
 
     private static Image[] npcMap1Idle; // NPC Map 1
     private static Image[] npcMap2Idle;  // NPC Map 2
@@ -135,6 +147,20 @@ public class LoadImage {
         return heart;
     }
 
+    public static Image getHealthBar() {
+        return healthBar;
+    }
+
+    public static Image getArkanoidBg1() { return arkanoidBg1; }
+
+    public static Image getArkanoidBg2() { return arkanoidBg2; }
+
+    public static Image getArkanoidBg3() { return arkanoidBg3; }
+
+    public static Image getArkanoidBg4() { return arkanoidBg4; }
+
+    public static Image getStaticBar() { return StaticBar; }
+
     private static void loadNpcImages() {
         npcMap3Idle = loadCharFrame("/Image/NPC/npc_map3_idle_%d.png", 6);
         npcMap1Idle = loadCharFrame("/Image/NPC/idle_000%d.png", 8);
@@ -180,6 +206,13 @@ public class LoadImage {
         heart = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Ball/heart.png")));
     }
 
+    public static void loadArkanoidBackgrounds() {
+        arkanoidBg1 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/background/background1.png")));
+        arkanoidBg2 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/background/background2.png")));
+        arkanoidBg3 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/background/background3.png")));
+        arkanoidBg4 = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/background/background4.png")));
+    }
+
     public static void loadAllImage() {
         loadCharImage();
         loadNpcImages();
@@ -195,6 +228,73 @@ public class LoadImage {
         allBlocks[4] = loadCharFrame("/Image/Block/yellow_block_%d.png", 3);
         line = loadCharFrame("/Image/background/line_%d.png", 2);
         paddle = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/Block/paddle.png")));
+        healthBar = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/HealthBar/health_bar.png")));
+        StaticBar = new Image(Objects.requireNonNull(LoadImage.class.getResourceAsStream("/Image/StaticBar/StaticBar.png")));
+        loadArkanoidBackgrounds();
+    }
+
+    public static void drawHealthBarWithMonster(GraphicsContext gc, int level) {
+        // Vẽ nền thanh máu
+        gc.drawImage(getHealthBar(), 0, 0);
+
+        double barX = 0;
+        double barY = 0;
+        double circleCenterX = barX + 25;
+        double circleCenterY = barY + 25;
+        double radius = 22;
+
+        Image monsterIcon;
+        double scale;
+        double offsetX = 0;
+        double offsetY = 0;
+
+        switch (level) {
+            case 1 -> {
+                monsterIcon = LoadImage.getNpcMap1Idle()[0];
+                scale = 2.8;
+                // Không cần offset cho case 1 (hoặc mặc định)
+                offsetX = 0;
+                offsetY = 0;
+            }
+            case 2 -> {
+                monsterIcon = LoadImage.getNpcMap2Idle()[0];
+                scale = 0.9;
+                offsetX = 10;
+                offsetY = 5;
+            }
+            case 3 -> {
+                monsterIcon = LoadImage.getNpcMap3Idle()[0];
+                scale = 3.0;
+                offsetX = 10;
+                offsetY = -5;
+                // ---------------
+            }
+            default -> {
+                monsterIcon = LoadImage.getNpcMap1Idle()[0];
+                scale = 3.0;
+                offsetX = 0;
+                offsetY = 0;
+            }
+        }
+
+        // Tính kích thước và vị trí
+        double drawRadius = radius * scale;
+
+        gc.save();
+        gc.beginPath();
+        gc.arc(circleCenterX, circleCenterY, radius, radius, 0, 360);
+        gc.closePath();
+        gc.clip();
+
+        gc.drawImage(
+                monsterIcon,
+                circleCenterX - drawRadius + offsetX,
+                circleCenterY - drawRadius + offsetY,
+                drawRadius * 2,
+                drawRadius * 2
+        );
+
+        gc.restore();
     }
 }
 

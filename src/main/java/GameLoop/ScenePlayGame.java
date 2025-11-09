@@ -15,6 +15,12 @@ import javafx.scene.shape.Rectangle;
 import java.util.HashSet;
 import java.util.Set;
 
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 public class ScenePlayGame {
     private final Set<KeyCode> pressedKeys = new HashSet<>();
@@ -39,7 +45,7 @@ public class ScenePlayGame {
     private double firstBattleX = 21 * 32;
     private double firstBattleY = 48 * 32;
     private NPC currentOpponent = null;
-    private int currentMapLevel = 1;
+    public static int currentMapLevel = 1;
     private int currentBattleLevel;
     private Ball aimingBall;
     private boolean isAiming = true;
@@ -55,6 +61,8 @@ public class ScenePlayGame {
     private boolean isShopUIActive = false; // <-- MỚI
     private NPC currentShopNPC = null; // <-- MỚI (Lưu NPC shop đang tương tác)// <-- MỚI
     private int initialBlockCount = 0; // Để tính 20%
+
+    private Canvas gameCanvas;
 
     public void runGame(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -119,6 +127,9 @@ public class ScenePlayGame {
         isBuffBullet = false;
         lastFrameTime = 0;
         gameSession.reset();
+
+        System.out.println("xu hien co: " + existingCoins);
+        System.out.println("Reset: " + level);
     }
 
     public void saveData() {
@@ -128,11 +139,11 @@ public class ScenePlayGame {
         ReadWriteData.setPlayerX(mainCharacter.getxOnMap());
         ReadWriteData.setPlayerY(mainCharacter.getyOnMap());
         ReadWriteData.saveGameData();
-
     }
 
     //Vong lap chinh
     private void startLevel(GraphicsContext gc, Canvas canvas) {
+        this.gameCanvas = canvas;
         lastFrameTime = 0;
         gameLoop = new AnimationTimer() {
             @Override
@@ -190,6 +201,11 @@ public class ScenePlayGame {
 
                                             // Kích hoạt spawn quái (ví dụ: hạ boss 3 sẽ spawn boss 4)
                                             manageNPC.onNpcDefeated(currentOpponent);
+
+                                            // --- SỬA LỖI: GỌI LƯU GAME NGAY LẬP TỨC ---
+                                            System.out.println("Lưu game sau khi tăng level... Level Arkanoid mới: " + level);
+                                            saveData(); // Gọi hàm lưu game của chính bạn
+                                            // -------------------------------------------
                                         }
 
                                         // ĐẶT LẠI VỊ TRÍ (VỀ CHỖ CŨ)
@@ -220,6 +236,7 @@ public class ScenePlayGame {
                             isIngame = false;
                             mainCharacter.setxOnMap(preBattleX);
                             mainCharacter.setyOnMap(preBattleY + 40);
+                            showLostScene();
                         }
                     } else {
                         updateInLoppy();
@@ -567,6 +584,15 @@ public class ScenePlayGame {
     //Render man hinh game
     private void renderInGame(GraphicsContext gc, Canvas canvas) {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        Image bg;
+        switch (level) {
+            case 1 -> bg = LoadImage.getArkanoidBg1();
+            case 2 -> bg = LoadImage.getArkanoidBg2();
+            case 3 -> bg = LoadImage.getArkanoidBg3();
+            case 4 -> bg = LoadImage.getArkanoidBg4();
+            default -> bg = LoadImage.getArkanoidBg1();
+        }
+        gc.drawImage(bg, 0, 0, GameApplication.WIDTH, GameApplication.HEIGHT);
         for (int i = 1; i <= myBlock.getLife(); i++) {
             gc.drawImage(LoadImage.getHeart(), 10 + (i - 1) * 25, 570, 20, 20);
         }
@@ -580,10 +606,15 @@ public class ScenePlayGame {
         if (isAiming || isBuffBullet) {
             aimingBall.addOnScene(gc);
         }
+        gc.drawImage(bg, 0, 0, bg.getWidth(), bg.getHeight() * 65 / 600,
+                0, 0, 800, 65);
         gc.setFill(Color.color(0, 0, 0, 0.5));
         gc.fillRect(0, 0, GameApplication.WIDTH, 65);
 
-        if (level >= 4) {
+        if (level < 4) {
+            gc.drawImage(LoadImage.getHealthBar(), 0, 0);
+            LoadImage.drawHealthBarWithMonster(gc, level);
+        } else {
             gameSession.renderClock(gc, listBlocks.getStateAboutToLose(), existingCoins);
         }
         dialogueManager.render(gc, true);
@@ -646,7 +677,6 @@ public class ScenePlayGame {
         pressedKeys.clear();
 
         isIngame = true;
-        //level = 1;
         running = true;
 
         if (gameLoop != null) gameLoop.stop();
@@ -666,10 +696,27 @@ public class ScenePlayGame {
     }
 
     public void quitToMainGame() {
-        isIngame = false;    // quay lại màn hình RPG
-        running = true;      // đảm bảo vòng lặp tiếp tục chạy
+        isIngame = false;
+        running = true;
         mainCharacter.setxOnMap(firstBattleX);
         mainCharacter.setyOnMap(firstBattleY);
+    }
+
+    private void showLostScene() {
+        Platform.runLater(() -> {
+            try {
+                Stage stage = (Stage) gameCanvas.getScene().getWindow();
+
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/lost-view.fxml"));
+                Scene lostScene = new Scene(loader.load(), 800, 600);
+
+                stage.setScene(lostScene);
+                stage.show();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
 

@@ -32,12 +32,7 @@ public class DialogueManager {
      * Cập nhật logic (đếm ngược thời gian)
      */
     public void update(float deltaTime) {
-        if (currentDialogue != null) {
-            timer -= deltaTime;
-            if (timer <= 0) {
-                showNextDialogue();
-            }
-        }
+
     }
 
     public void closeDialogue() {
@@ -93,6 +88,13 @@ public class DialogueManager {
 
         gc.setFont(Font.font("Arial", 12)); // Font (theo ý bạn)
         gc.fillText(currentDialogue.getLine(), 40, boxY + 60);
+    }
+
+    public void skipCurrentDialogue() {
+        // Chỉ bỏ qua nếu đang có hội thoại
+        if (isShowingDialogue()) {
+            showNextDialogue(); // Hàm này sẽ tự lấy câu tiếp theo hoặc đóng hộp thoại
+        }
     }
 
     public boolean isShowingDialogue() {

@@ -23,13 +23,20 @@ public class ReadWriteData {
     private static double baseWidth = 70.0;
     private static double baseSpeed = 4.0;
     private static double baseLucky = 1.0;
-
+    private static int highestMapReached = 1;
     static {
         loadGameData();
     }
 
     public static int getBaseLife() { return baseLife; }
     public static void setBaseLife(int life) { baseLife = life; }
+
+    public static int getHighestMapReached() {
+        return highestMapReached;
+    }
+    public static void setHighestMapReached(int map) {
+        highestMapReached = map;
+    }
 
     public static double getBaseWidth() { return baseWidth; }
     public static void setBaseWidth(double width) { baseWidth = width; }
@@ -143,6 +150,7 @@ public class ReadWriteData {
         baseWidth = 70.0;   // Mặc định
         baseSpeed = 4.0;    // Mặc định
         baseLucky = 1.0;
+        highestMapReached = 1;
         defeatedNpcIds.clear();
         String line;
         while ((line = br.readLine()) != null) {
@@ -174,6 +182,8 @@ public class ReadWriteData {
                     baseSpeed = Double.parseDouble(value);
                 } else if (key.equals("BaseLucky")) {
                     baseLucky = Double.parseDouble(value);
+                } else if (key.equals("HighestMapReached")) { // <-- THÊM ELSE IF NÀY
+                    highestMapReached = Integer.parseInt(value);
                 }
             }
         }
@@ -209,6 +219,9 @@ public class ReadWriteData {
             bw.write("BaseLucky: " + baseLucky);
             bw.newLine();
 
+            bw.write("HighestMapReached: " + highestMapReached);
+            bw.newLine();
+
             for (String id : defeatedNpcIds) {
                 bw.write("Defeated: " + id);
                 bw.newLine();
@@ -230,6 +243,7 @@ public class ReadWriteData {
             playerX = 21 * 32;
             playerY = 48 * 32;
             defeatedNpcIds.clear();
+            highestMapReached = 1;
             baseLife = 2;     // Đặt lại mặc định
             baseWidth = 70.0;   // Đặt lại mặc định
             baseSpeed = 4.0;

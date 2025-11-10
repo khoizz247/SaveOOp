@@ -1,13 +1,9 @@
 package LoadResource;
 
-import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
+
 import java.util.Objects;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 public class LoadImage {
     private static Image[] idleAhead;
@@ -43,9 +39,12 @@ public class LoadImage {
 
     private static Image StaticBar;
 
+
     private static Image[] npcMap1Idle; // NPC Map 1
     private static Image[] npcMap2Idle;  // NPC Map 2
     private static Image[] npcMap3Idle;  // NPC Map 3
+    private static Image[] NpcPortalIdle;
+    private static Image[] NpcWizardIdle;
 
     private static Image[] line;
 
@@ -87,8 +86,8 @@ public class LoadImage {
         return npcMap1Idle;
     }
 
-    public static Image[] getNpcDemonIdle() {
-        return npcMap1Idle;
+    public static Image[] getNpcPortalIdle() {
+        return NpcPortalIdle;
     }
 
     public static Image[] getNpcMap2Idle() {
@@ -98,6 +97,8 @@ public class LoadImage {
     public static Image[] getNpcMap3Idle() {
         return npcMap3Idle;
     }
+
+    public static Image[] getNpcWizardIdle() { return NpcWizardIdle; }
 
     public static Image[] getIdleAhead() {
         return idleAhead;
@@ -165,6 +166,8 @@ public class LoadImage {
         npcMap3Idle = loadCharFrame("/Image/NPC/npc_map3_idle_%d.png", 6);
         npcMap1Idle = loadCharFrame("/Image/NPC/idle_000%d.png", 8);
         npcMap2Idle = loadCharFrame("/Image/NPC/map2_%d.png", 4);
+        NpcPortalIdle = loadCharFrame("/Image/NPC/portal1_frame_%d.png", 7);
+        NpcWizardIdle = loadCharFrame("/Image/NPC/wizard_%d.png", 6);
     }
 
     private static Image[] loadCharFrame(String format, int numOfFrame) {

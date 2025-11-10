@@ -4,6 +4,7 @@ import GameObject.*;
 
 import LoadResource.GameStats;
 import LoadResource.LoadImage;
+import LoadResource.LoadVideo;
 import StartGame.GameApplication;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
@@ -30,6 +31,8 @@ public class ScenePlayGame {
     private boolean running = true;
     private int level;
     boolean isIngame = false;
+    private boolean showHitboxes = false;
+
 
     private MyBlock myBlock;
     private ManageGameBlock listBlocks;
@@ -88,6 +91,7 @@ public class ScenePlayGame {
         gameSession = new GameSession();
         dialogueManager = new DialogueManager(); // <-- KHỞI TẠO
         shopManager = new ShopManager();
+        ReadWriteData.loadGameData();
         level = ReadWriteData.getLevel();
         existingCoins = ReadWriteData.getExistingCoins();
         this.currentMapLevel = ReadWriteData.getCurrentMapLevel();
@@ -272,6 +276,12 @@ public class ScenePlayGame {
     //Xu li di chuyen cua gach
     private void updateInGame(float deltaTime) {
 
+        if (dialogueManager.isShowingDialogue()) {
+            // ...thì KHÔNG cập nhật bóng, gạch, hay thanh đỡ.
+            // (Nhưng renderInGame vẫn chạy để vẽ hộp thoại)
+            return;
+        }
+
         if (currentOpponent != null && !currentOpponent.hasSpokenTaunt() && initialBlockCount > 0) {
             int currentBlocks = listBlocks.getNumberBlock();
             double percentage = (double) currentBlocks / initialBlockCount;
@@ -296,6 +306,13 @@ public class ScenePlayGame {
             myBlock.setX(myBlock.getX() + myBlock.getSpeed());
         }
         myBlock.collisionHandling();
+
+        listBlocks.update(level); // <-- MỚI
+        listBalls.update(myBlock, listBlocks.getGameBlocks(), listBuffs, gameSession); // <-- MỚI
+        Boolean b = listBuffs.update(myBlock, listBalls); // <-- MỚI
+        if (!isBuffBullet) {
+            isBuffBullet = b;
+        }
 
         // --- Logic theo trạng thái ---
         if (isAiming || isBuffBullet) {
@@ -331,6 +348,8 @@ public class ScenePlayGame {
         // manageNPC sẽ cập nhật tất cả NPC
         manageNPC.update(System.nanoTime());
 
+
+
         if (isShopUIActive) {
             mainCharacter.setRunning(false);
             return; // Dừng, không làm gì khác
@@ -338,12 +357,7 @@ public class ScenePlayGame {
 
         if (dialogueManager.isShowingDialogue()) {
             mainCharacter.setRunning(false);
-            if (currentShopNPC != null && pressedKeys.contains(KeyCode.ENTER)) {
-                dialogueManager.closeDialogue(); // Đóng hội thoại
-                isShopUIActive = true;           // Mở UI Shop
-                shopManager.openShop();
-                pressedKeys.clear(); // Xóa phím ENTER để tránh lỗi
-            }
+            return;
         } else {
             // ... (toàn bộ code di chuyển W,A,S,D cũ) ...
             // (Cut và Paste toàn bộ code xử lý di chuyển vào trong khối else này)
@@ -436,16 +450,16 @@ public class ScenePlayGame {
             boolean needsNpcCheck = false;
             boolean doPushBack = false;
 
+            // --- SỬA TỌA ĐỘ Y TRONG KHỐI NÀY ---
             if (currentMapLevel == 1) {
                 if (portalIndex == 0) { // Từ 1 -> 2 (Đi tới)
                     needsNpcCheck = true; // Cần check
                     if (manageNPC.allNpcsDefeated()) {
                         nextMap = 2;
                         nextX = 25 * 16;
-                        nextY = 47 * 16;
+                        nextY = 45 * 16;         // <-- SỬA TỪ 47*16
                         firstBattleX = 25 * 16;
-                        firstBattleY = 46 * 16;
-
+                        firstBattleY = 45 * 16;  // <-- SỬA TỪ 47*16
                     } else {
                         doPushBack = true; // Chưa hạ quái, đẩy lùi
                     }
@@ -456,9 +470,9 @@ public class ScenePlayGame {
                     if (manageNPC.allNpcsDefeated()) {
                         nextMap = 3;
                         nextX = 25 * 16;
-                        nextY = 45 * 16;
+                        nextY = 45 * 16;         // <-- Chỗ này giữ nguyên
                         firstBattleX = 25 * 16;
-                        firstBattleY = 44 * 16;
+                        firstBattleY = 44 * 16;  // <-- Chỗ này giữ nguyên
                     } else {
                         doPushBack = true;
                     }
@@ -466,47 +480,86 @@ public class ScenePlayGame {
                     needsNpcCheck = false;
                     nextMap = 1;
                     nextX = 21 * 32;
-                    nextY = 3 * 32;
+                    nextY = 3 * 32;          // <-- Chỗ này giữ nguyên
                     firstBattleX = 21 * 32;
-                    firstBattleY = 3 * 32;
+                    firstBattleY = 3 * 32;   // <-- Chỗ này giữ nguyên
                 }
             } else if (currentMapLevel == 3) {
                 if (portalIndex == 0) { // Từ 3 -> 2 (Quay về)
                     needsNpcCheck = false;
                     nextMap = 2;
                     nextX = 26 * 16;
-                    nextY = 4 * 16;
+                    nextY = 7 * 16;          // <-- SỬA TỪ 4*16
                     firstBattleX = 26 * 16;
-                    firstBattleY = 4 * 16;
+                    firstBattleY = 7 * 16;   // <-- SỬA TỪ 4*16
                 }
             }
+            // --- KẾT THÚC SỬA TỌA ĐỘ ---
 
-            // --- Xử lý kết quả ---
+
+            // --- Xử lý kết quả (Dùng hàm saveData() và logic video) ---
             if (nextMap != -1) {
-                // --- CHUYỂN MAP ---
-                currentMapLevel = nextMap;
-                System.out.println("Chuyển sang map " + currentMapLevel);
-                manageMap.loadMap(currentMapLevel);
-                manageNPC.loadNpcsForMap(currentMapLevel);
-                map.setMapImage(currentMapLevel);
+                // --- BƯỚC 1: DỪNG GAME LOOP HIỆN TẠI ---
+                gameLoop.stop(); // Rất quan trọng!
+
+                // --- BƯỚC 2: KIỂM TRA XEM CÓ CẦN PHÁT VIDEO KHÔNG ---
+                boolean playVideo = false;
+                int highestMap = ReadWriteData.getHighestMapReached();
+
+                if (nextMap > highestMap) {
+                    playVideo = true; // Đây là map mới, bật video
+                    ReadWriteData.setHighestMapReached(nextMap); // Cập nhật map cao nhất
+                }
+                // (Nếu nextMap <= highestMap, playVideo sẽ là false,
+                // có nghĩa là đi ngược về và sẽ bỏ qua video)
+
+                // --- BƯỚC 3: CẬP NHẬT BIẾN VÀ LƯU GAME ---
+                this.currentMapLevel = nextMap;
                 mainCharacter.setxOnMap(nextX);
                 mainCharacter.setyOnMap(nextY);
-                map.setXYOnScreen(mainCharacter.getxOnMap(), mainCharacter.getyOnMap(), mainCharacter.getSize());
-                // Tính lại hitbox dựa trên vị trí MỚI của player
-                playerBounds = new Rectangle(
-                        mainCharacter.getxOnMap() + playerHitboxOffsetX,
-                        mainCharacter.getyOnMap() + playerHitboxOffsetY,
-                        playerHitboxWidth,
-                        playerHitboxHeight);
-                System.out.println("Đã chuyển map, tự động lưu game...");
-                ReadWriteData.setCurrentMapLevel(currentMapLevel);
-                ReadWriteData.setPlayerX(mainCharacter.getxOnMap());
-                ReadWriteData.setPlayerY(mainCharacter.getyOnMap());
-                ReadWriteData.saveGameData();
+                // (firstBattleX/Y đã được set ở khối if/else bên trên)
+
+                saveData(); // GỌI HÀM LƯU (sẽ lưu cả highestMap mới)
+                System.out.println("Đã gọi saveData(). Map mới: " + this.currentMapLevel);
+
+                final int targetMap = nextMap;
+                final boolean finalPlayVideo = playVideo; // Cần final để dùng trong lambda
+
+                // --- BƯỚC 4: GỌI VIDEO (ĐÃ SỬA) ---
+                Platform.runLater(() -> {
+                    try {
+                        Stage stage = (Stage) gameCanvas.getScene().getWindow();
+
+                        // Đây là hàm onFinish (sẽ chạy SAU KHI video kết thúc)
+                        Runnable onVideoFinish = () -> {
+                            try {
+                                // Tải lại scene game y hệt như ControlHomeScene
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scene/ingame-view.fxml"));
+                                Scene scene = new Scene(loader.load(), 800, 600);
+                                stage.setScene(scene);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        };
+
+                        // KIỂM TRA CỜ "PLAYVIDEO"
+                        if (finalPlayVideo) {
+                            // Chỉ phát video NẾU LÀ MAP MỚI
+                            System.out.println("Lần đầu đến map " + targetMap + ". Đang phát video...");
+                            LoadResource.LoadVideo.playTransitionVideo(stage, onVideoFinish, targetMap);
+                        } else {
+                            // Bỏ qua video, tải map ngay lập tức
+                            System.out.println("Đang quay lại map " + targetMap + ". Bỏ qua video.");
+                            onVideoFinish.run();
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
 
             } else if (doPushBack) {
                 // --- ĐẨY LÙI NHÂN VẬT (VÌ CHƯA HẠ HẾT QUÁI) ---
-
                 if (mainCharacter.getyOnMap() > 400) { // Nếu portal ở nửa dưới map
                     mainCharacter.setyOnMap(mainCharacter.getyOnMap() - 20); // Đẩy LÊN
                 } else {
@@ -519,9 +572,7 @@ public class ScenePlayGame {
         for (NPC npc : manageNPC.getNpcs()) {
             if (npc.isDefeated()) continue;
 
-            Rectangle npcBounds = new Rectangle(
-                    npc.getxOnMap(), npc.getyOnMap(), npc.getSize(), npc.getSize()
-            );
+            Rectangle npcBounds = npc.getBattleBounds();
 
             if (npc.getNpcType() == 99) {
 
@@ -541,10 +592,24 @@ public class ScenePlayGame {
                 }
 
             } else {
+                // --- LOGIC CHỈ DÀNH CHO NPC CHIẾN ĐẤU (ĐÃ SỬA THỨ TỰ) ---
 
-                // --- LOGIC CHỈ DÀNH CHO NPC CHIẾN ĐẤU (Loại thường) ---
-                // 1. Va chạm để BẮT ĐẦU TRẬN ĐẤU
-                if (playerBounds.intersects(npcBounds.getLayoutBounds())) {
+                // 1. Va chạm để NÓI CHUYỆN (VÙNG LỚN - CHECK TRƯỚC)
+                if (playerBounds.intersects(npc.getProximityBounds().getLayoutBounds())) {
+                    if (!npc.hasSpokenProximity() && !dialogueManager.isShowingDialogue()) {
+                        dialogueManager.startDialogue(npc.getProximityDialogue());
+                        npc.setHasSpokenProximity(true); // Đánh dấu đã nói
+                    }
+                }
+                // 2. Reset cờ "đã nói" nếu đi xa
+                else {
+                    npc.setHasSpokenProximity(false);
+                }
+
+                // 3. Va chạm để BẮT ĐẦU TRẬN ĐẤU (VÙNG NHỎ - CHECK SAU CÙNG)
+                // (Lưu ý: Đây là 'if', không phải 'else if')
+                if (playerBounds.intersects(npc.getBattleBounds().getLayoutBounds())) {
+
                     // Chỉ bắt đầu trận nếu không đang bận nói chuyện
                     if (!dialogueManager.isShowingDialogue()) {
                         this.preBattleX = mainCharacter.getxOnMap();
@@ -555,19 +620,8 @@ public class ScenePlayGame {
                         currentOpponent.setHasSpokenTaunt(false); // Reset cờ thoại 20%
                         this.currentBattleLevel = npc.getArkanoidLevel();
                         resetObject();
-                        break;
+                        break; // Thoát khỏi vòng lặp 'for' (vì đã vào trận)
                     }
-                }
-                // 2. Va chạm để NÓI CHUYỆN (vùng lớn hơn)
-                else if (playerBounds.intersects(npc.getProximityBounds().getLayoutBounds())) {
-                    if (!npc.hasSpokenProximity() && !dialogueManager.isShowingDialogue()) {
-                        dialogueManager.startDialogue(npc.getProximityDialogue());
-                        npc.setHasSpokenProximity(true); // Đánh dấu đã nói
-                    }
-                }
-                //3. (Tùy chọn) Reset cờ "đã nói" nếu đi xa
-                else {
-                    npc.setHasSpokenProximity(false);
                 }
             }
         }
@@ -597,12 +651,10 @@ public class ScenePlayGame {
             gc.drawImage(LoadImage.getHeart(), 10 + (i - 1) * 25, 570, 20, 20);
         }
         myBlock.addOnScene(gc);
-        listBlocks.addListOnScene(gc, level);
-        listBalls.addListOnScene(gc, myBlock, listBlocks.getGameBlocks(), listBuffs, gameSession);
-        Boolean b = listBuffs.addBuffOnScene(gc, myBlock, listBalls);
-        if (!isBuffBullet) {
-            isBuffBullet = b;
-        }
+        listBlocks.render(gc); // <-- SỬA
+        listBalls.render(gc); // <-- SỬA
+        listBuffs.render(gc); // <-- SỬA
+
         if (isAiming || isBuffBullet) {
             aimingBall.addOnScene(gc);
         }
@@ -629,6 +681,71 @@ public class ScenePlayGame {
         manageNPC.render(gc, map);
         dialogueManager.render(gc, false);
         shopManager.render(gc, existingCoins);
+
+        if (this.showHitboxes) {
+            // --- BẮT ĐẦU CODE ĐỂ VẼ HITBOX (DEBUG) ---
+            gc.setLineWidth(2); // Đặt độ dày nét vẽ chung
+
+            // 1. Vẽ hitbox TƯỜNG (Màu đỏ)
+            gc.setStroke(Color.RED);
+            if (manageMap.getCollisionBounds() != null) {
+                for (Rectangle r : manageMap.getCollisionBounds()) {
+                    double drawX = r.getX() + map.getxOnScreen();
+                    double drawY = r.getY() + map.getyOnScreen();
+                    gc.strokeRect(drawX, drawY, r.getWidth(), r.getHeight());
+                }
+            }
+
+            // 2. Vẽ hitbox CỔNG (Màu xanh dương)
+            gc.setStroke(Color.BLUE);
+            if (manageMap.getPortalBounds() != null) {
+                for (Rectangle r : manageMap.getPortalBounds()) {
+                    double drawX = r.getX() + map.getxOnScreen();
+                    double drawY = r.getY() + map.getyOnScreen();
+                    gc.strokeRect(drawX, drawY, r.getWidth(), r.getHeight());
+                }
+            }
+
+            // --- CODE MỚI ĐỂ VẼ HITBOX NPC ---
+            if (manageNPC.getNpcs() != null) {
+                for (NPC npc : manageNPC.getNpcs()) {
+                    if (npc.isDefeated()) continue; // Bỏ qua nếu đã bị hạ
+
+                    // 3. Vẽ hitbox "VÀO TRẬN" (Màu cam)
+                    // Đây là hitbox nhỏ, va chạm sẽ vào Arkanoid.
+                    gc.setStroke(Color.ORANGE);
+                    Rectangle battleBox = npc.getBattleBounds(); // <-- Dùng hàm mới
+                    double battleDrawX = battleBox.getX() + map.getxOnScreen();
+                    double battleDrawY = battleBox.getY() + map.getyOnScreen();
+                    gc.strokeRect(battleDrawX, battleDrawY, battleBox.getWidth(), battleBox.getHeight());
+
+                    // 4. Vẽ hitbox "THOẠI / SHOP" (Màu xanh lơ)
+                    // Đây là hitbox lớn, đi vào sẽ kích hoạt thoại.
+                    gc.setStroke(Color.CYAN);
+                    Rectangle proxBox = npc.getProximityBounds();
+                    double proxDrawX = proxBox.getX() + map.getxOnScreen();
+                    double proxDrawY = proxBox.getY() + map.getyOnScreen();
+                    gc.strokeRect(proxDrawX, proxDrawY, proxBox.getWidth(), proxBox.getHeight());
+                }
+            }
+
+            // (Tùy chọn) Vẽ hitbox của chính NGƯỜI CHƠI (Màu vàng)
+            // Lấy lại code tạo hitbox từ hàm updateInLoppy
+            double playerHitboxWidth = mainCharacter.getSize() / 3;
+            double playerHitboxHeight = mainCharacter.getSize() / 2;
+            double playerHitboxOffsetX = (mainCharacter.getSize() - playerHitboxWidth) / 2;
+            double playerHitboxOffsetY = mainCharacter.getSize() / 2;
+
+            gc.setStroke(Color.YELLOW);
+            // Dùng tọa độ VẼ của nhân vật (characterDrawX)
+            gc.strokeRect(
+                    map.characterDrawX + playerHitboxOffsetX,
+                    map.characterDrawY + playerHitboxOffsetY,
+                    playerHitboxWidth,
+                    playerHitboxHeight
+            );
+            // --- KẾT THÚC CODE DEBUG ---
+        }
     }
 
     public boolean isIngame() {
@@ -637,6 +754,15 @@ public class ScenePlayGame {
 
     public void setIngame(boolean ingame) {
         this.isIngame = ingame;
+    }
+
+    /**
+     * Bật/tắt chế độ debug hitbox.
+     * (Được gọi từ ControlGameScene khi ấn phím H)
+     */
+    public void toggleDebugHitbox() {
+        this.showHitboxes = !this.showHitboxes;
+        System.out.println("Debug Hitboxes: " + (this.showHitboxes ? "ON" : "OFF"));
     }
 
     public void restartRPG(Canvas canvas) {
@@ -689,6 +815,27 @@ public class ScenePlayGame {
 
     public void removePressedKey(KeyCode code) {
         pressedKeys.remove(code);
+    }
+
+    public boolean isDialogueActive() {
+        return dialogueManager.isShowingDialogue();
+    }
+
+    public void handleDialogueInput(KeyCode code) {
+        if (code == KeyCode.ENTER || code == KeyCode.SPACE) {
+
+            // Trường hợp 1: Đây là hội thoại để MỞ SHOP
+            // (currentShopNPC được gán khi bạn đến gần shop)
+            if (currentShopNPC != null) {
+                dialogueManager.closeDialogue(); // Đóng hội thoại
+                isShopUIActive = true;           // Mở UI Shop
+                shopManager.openShop();
+            }
+            // Trường hợp 2: Đây là hội thoại bình thường
+            else {
+                dialogueManager.skipCurrentDialogue();
+            }
+        }
     }
 
     public boolean isInArkanoid() {

@@ -19,7 +19,11 @@ public class NPC extends Character {
     private List<Dialogue> battleTauntDialogue = new ArrayList<>(); // Thoại khi 20%
     private boolean hasSpokenProximity = false;
     private boolean hasSpokenTaunt = false;
-    private double proximityRadius = 96;
+    private double proximityRadius = 32;
+    private double hitboxWidth;
+    private double hitboxHeight;
+    private double hitboxOffsetX; // Độ lệch X so với getxOnMap()
+    private double hitboxOffsetY; // Độ lệch Y so với getyOnMap()
 
     public NPC(double x, double y, double size, int arkanoidLevel, int npcType) {
         setxOnMap(x);
@@ -35,10 +39,13 @@ public class NPC extends Character {
             // (Tùy chọn) Load ảnh riêng cho NPC Shop
             // idleFrames = LoadImage.getNpcShopIdle();
             // Tạm thời dùng ảnh Map 1
-            idleFrames = LoadImage.getNpcDemonIdle();
+            idleFrames = LoadImage.getNpcWizardIdle();
+        } else if  (npcType == 4) {
+            idleFrames = LoadImage.getNpcPortalIdle();
+
         } else {
             // Mặc định là NPC Map 1
-            idleFrames = LoadImage.getNpcDemonIdle();
+            idleFrames = LoadImage.getNpcMap1Idle();
         }
     }
 
@@ -106,9 +113,42 @@ public class NPC extends Character {
      * Tạo một vùng chữ nhật lớn hơn NPC để kích hoạt hội thoại
      */
     public Rectangle getProximityBounds() {
-        double newSize = getSize() + proximityRadius;
-        double newX = getxOnMap() - (proximityRadius / 2);
-        double newY = getyOnMap() - (proximityRadius / 2);
-        return new Rectangle(newX, newY, newSize, newSize);
+        // 1. Lấy hitbox chiến đấu (màu cam) làm CƠ SỞ
+        //    (Chúng ta không dùng getBattleBounds() trực tiếp
+        //     để tránh lỗi đệ quy vô hạn nếu có)
+        Rectangle battleBounds = new Rectangle(
+                getxOnMap() + hitboxOffsetX,
+                getyOnMap() + hitboxOffsetY,
+                hitboxWidth,
+                hitboxHeight
+        );
+
+        // 2. Mở rộng nó ra "proximityRadius" pixel
+        //    (Tức là proximityRadius/2 ở mỗi bên)
+        double newX = battleBounds.getX() - (proximityRadius / 2);
+        double newY = battleBounds.getY() - (proximityRadius / 2);
+        double newWidth = battleBounds.getWidth() + proximityRadius;
+        double newHeight = battleBounds.getHeight() + proximityRadius;
+
+        return new Rectangle(newX, newY, newWidth, newHeight);
     }
+
+    public void setBattleHitbox(double width, double height, double offsetX, double offsetY) {
+        this.hitboxWidth = width;
+        this.hitboxHeight = height;
+        this.hitboxOffsetX = offsetX;
+        this.hitboxOffsetY = offsetY;
+    }
+
+    public Rectangle getBattleBounds() {
+        // Tạo hitbox dựa trên vị trí của NPC và các biến offset
+        return new Rectangle(
+                getxOnMap() + hitboxOffsetX,
+                getyOnMap() + hitboxOffsetY,
+                hitboxWidth,
+                hitboxHeight
+        );
+    }
+
+
 }

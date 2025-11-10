@@ -259,4 +259,13 @@ public class ManageMap {
         return -1;
     }
 
+    //debug
+    public List<Rectangle> getCollisionBounds() {
+        return collisionBounds;
+    }
+
+    public List<Rectangle> getPortalBounds() {
+        return portalBounds;
+    }
+
 }

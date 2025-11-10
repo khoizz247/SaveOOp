@@ -37,7 +37,6 @@ public class ShopManager {
             feedbackTimer -= deltaTime;
             if (feedbackTimer <= 0) {
                 feedbackDialogue = null;
-                closeShop(); // Tự động đóng shop sau khi thông báo biến mất
             }
         }
     }
@@ -87,11 +86,7 @@ public class ShopManager {
                     ReadWriteData.setBaseLucky(ReadWriteData.getBaseLucky() + 0.1);
                     showFeedback("Đã tăng May Mắn", 2.0);
             }
-            int map = ReadWriteData.getCurrentMapLevel();
-            if (map == 1 || map == 2) {
-                ReadWriteData.addDefeatedNpc(map, 0);
-                System.out.println("Shop map " + map + " đã bị đánh dấu là 'đã dùng'.");
-            }
+
         }
         return currentCoins;
     }

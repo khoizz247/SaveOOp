@@ -37,6 +37,15 @@ public class ControlGameScene {
         canvas.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
             KeyCode code = event.getCode();
 
+            // 0. Ưu tiên Tắt/Mở Debug
+            if (code == KeyCode.H) {
+                if (scenePlayGame != null) {
+                    scenePlayGame.toggleDebugHitbox();
+                }
+                event.consume(); // Ngăn phím H làm việc khác
+                return;
+            }
+
             // 1. Ưu tiên Pause
             if (code == KeyCode.ESCAPE || code == KeyCode.P) {
                 // Nếu shop đang mở, ESC sẽ đóng shop trước
@@ -49,17 +58,19 @@ public class ControlGameScene {
                 return;
             }
 
-            // 2. Nếu Shop đang mở, gửi input đến Shop
+            // 2. Nếu Shop đang mở (Ưu tiên cao nhất)
             if (scenePlayGame.isShopUIActive()) {
                 scenePlayGame.handleShopInput(code);
                 event.consume();
             }
-            // 3. Nếu không, gửi input để di chuyển (như cũ)
+            // 3. (MỚI) Nếu Hội thoại đang mở (Shop CHƯA mở)
+            else if (scenePlayGame.isDialogueActive()) {
+                scenePlayGame.handleDialogueInput(code);
+                event.consume();
+            }
+            // 4. Nếu không, gửi input để di chuyển
             else {
-                // (Lưu ý: Bạn cần khai báo pressedKeys ở đầu lớp ControlGameScene
-                // thay vì trong ScenePlayGame)
-                // Giả sử pressedKeys là biến của ScenePlayGame:
-                scenePlayGame.addPressedKey(code); // <-- Bạn cần tạo hàm này
+                scenePlayGame.addPressedKey(code);
             }
         });
 
@@ -203,4 +214,5 @@ public class ControlGameScene {
             button.setScaleY(1.0);
         });
     }
+
 }

@@ -76,38 +76,42 @@ public class ManageGameBlock {
         translation = 0;
     }
 
-    public void addListOnScene(GraphicsContext gc, int level) {
+    // 1. TẠO HÀM UPDATE MỚI
+    public void update(int level) {
         double maxY = -1;
+        // Logic làm gạch rơi (UPDATE)
         if (translation < 25 && level > 3) {
             for (GameBlock block : gameBlocks) {
                 block.setY(block.getY() + 1);
                 maxY = Math.max(maxY, block.getY());
-                block.addOnScene(gc);
             }
-            translation ++;
+            translation++;
         } else {
             for (GameBlock block : gameBlocks) {
                 maxY = Math.max(maxY, block.getY());
-                block.addOnScene(gc);
             }
         }
+
+        // Logic kiểm tra thua (UPDATE)
         final double LINE_1 = 435;
         final double LINE_2 = 435 + 25;
 
         if (maxY < LINE_1) {
             stateAboutToLose = 0;
         } else if (maxY >= LINE_1 && maxY < LINE_2) {
-            if (stateAboutToLose == 0) {
-                stateAboutToLose = 1;
-            } else if (stateAboutToLose == 1 && translation >= 25) {
-                stateAboutToLose = 2;
-            }
+            if (stateAboutToLose == 0) stateAboutToLose = 1;
+            else if (stateAboutToLose == 1 && translation >= 25) stateAboutToLose = 2;
         } else if (maxY >= LINE_2) {
-            if (stateAboutToLose < 3) {
-                stateAboutToLose = 3;
-            } else if (stateAboutToLose == 3 && translation >= 25) {
-                stateAboutToLose = 4;
-            }
+            if (stateAboutToLose < 3) stateAboutToLose = 3;
+            else if (stateAboutToLose == 3 && translation >= 25) stateAboutToLose = 4;
         }
     }
+
+    // 2. TẠO HÀM RENDER MỚI
+    public void render(GraphicsContext gc) {
+        for (GameBlock block : gameBlocks) {
+            block.addOnScene(gc); // Chỉ vẽ
+        }
+    }
+
 }

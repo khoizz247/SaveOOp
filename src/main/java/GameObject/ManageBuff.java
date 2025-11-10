@@ -46,24 +46,32 @@ public class ManageBuff {
         }
     }
 
-    //Đổi thành cái này
-    public boolean addBuffOnScene(GraphicsContext gc, MyBlock paddle, ManageBall manageBall) {
+    // 1. TẠO HÀM UPDATE MỚI
+    public boolean update(MyBlock paddle, ManageBall manageBall) {
         boolean bulletActivated = false;
         for (int i = buffs.size() - 1; i >= 0; i--) {
             Buff buff = buffs.get(i);
+            // Logic tính toán & va chạm
             String result = buff.updateBuff(paddle, manageBall);
+
             if (result.equals("AIMING")) {
                 bulletActivated = true;
                 buffs.remove(i);
             } else if (result.equals("HIT") || buff.checkOutScreen()) {
                 buffs.remove(i);
-                System.out.println("xu duoc them: " + extraCoins);
-            } else {
-                buff.addOnScene(gc);
             }
+            // Xóa bỏ phần 'buff.addOnScene(gc)' khỏi đây
         }
         return bulletActivated;
     }
+
+    // 2. TẠO HÀM RENDER MỚI
+    public void render(GraphicsContext gc) {
+        for (Buff buff : buffs) {
+            buff.addOnScene(gc); // Chỉ vẽ
+        }
+    }
+
 
     public String trySpawnBuff(double lucky) {
         Map<String, Double> weights = new LinkedHashMap<>();

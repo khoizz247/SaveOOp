@@ -21,17 +21,27 @@ public class ManageBall {
         balls.clear();
     }
 
-    public void addListOnScene(GraphicsContext gc, MyBlock myBlock,
-                               List<GameBlock> blocks, ManageBuff listBuffs, GameSession gameSession) {
+    // 1. TẠO HÀM UPDATE MỚI
+    public void update(MyBlock myBlock, List<GameBlock> blocks, ManageBuff listBuffs, GameSession gameSession) {
         for (int i = 0; i < balls.size(); i++) {
+            // Logic tính toán & vật lý
             balls.get(i).updateBall(myBlock, blocks, listBuffs, gameSession);
-            balls.get(i).addOnScene(gc);
+
+            // Logic xóa bóng
             if (balls.get(i).checkOutScreen()) {
                 balls.remove(i);
                 i--;
             }
         }
     }
+
+    // 2. TẠO HÀM RENDER MỚI
+    public void render(GraphicsContext gc) {
+        for (Ball ball : balls) {
+            ball.addOnScene(gc); // Chỉ vẽ
+        }
+    }
+
     //Buff thêm bóng.
     public void addBall(double xPaddle, double yPaddle, double widthPaddle) {
         balls.add(new Ball(xPaddle + widthPaddle / 2, yPaddle - 6 - 1, 6, 3, -1, -1));

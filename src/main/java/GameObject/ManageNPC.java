@@ -20,6 +20,17 @@ public class ManageNPC {
         if (mapLevel == 1) {
             // NPC Map 1, Arkanoid Level 1
             NPC npc = new NPC(20 * 32, 37 * 32, 250, 1, 1);
+
+            // --- ĐẶT HITBOX CHIẾN ĐẤU (MỚI) ---
+            // (Ví dụ: hitbox rộng 80, cao 120,
+            // đặt ở giữa và nửa dưới của ảnh 250x250)
+            double drawSizeNpcmap1_1 = npc.getSize(); // Lấy 250
+            double hbWidthNpcmap1_1 = 80;
+            double hbHeightNpcmap1_1 = 120;
+            double hbOffsetXNpcmap1_1 = (drawSizeNpcmap1_1 - hbWidthNpcmap1_1) / 2; // (250 - 80) / 2 = 85
+            double hbOffsetYNpcmap1_1 = drawSizeNpcmap1_1 - hbHeightNpcmap1_1;      // 250 - 120 = 130 (đặt ở chân)
+            npc.setBattleHitbox(hbWidthNpcmap1_1, hbHeightNpcmap1_1, hbOffsetXNpcmap1_1, hbOffsetYNpcmap1_1);
+            // --- KẾT THÚC ---
             npc.setDefeated(ReadWriteData.isNpcDefeated(1, 1));
             npcs.add(npc);
 
@@ -32,17 +43,16 @@ public class ManageNPC {
                     new Dialogue("Goblin", "Mà chỉ cần kẹo sữa Mikita được làm từ sữa!", 2.0)
             ));
 
-            NPC shopNpc = new NPC(17 * 32, 5 * 32, 250, 0, 99);
-            shopNpc.setProximityDialogue(List.of(
-                    new Dialogue("Chủ Cửa Hàng", "Làm tý PHỞ không chú em? (Ấn ENTER để mua)", 4.0)
-            ));
-            // Thêm dòng này để kiểm tra xem shop đã bị "đánh bại" (đã dùng) chưa
-            shopNpc.setDefeated(ReadWriteData.isNpcDefeated(1, 0));
-            npcs.add(shopNpc);
 
         } else if (mapLevel == 2) {
             // NPC Map 2, Arkanoid Level 2
             NPC npc = new NPC(23 * 16, 9 * 16, 70, 2, 2);
+            double drawSizeNpcmap2_1 = npc.getSize(); // Lấy 250
+            double hbWidthNpcmap2_1 = 30;
+            double hbHeightNpcmap2_1 = 70;
+            double hbOffsetXNpcmap2_1 = (drawSizeNpcmap2_1 - hbWidthNpcmap2_1) / 2; // (250 - 80) / 2 = 85
+            double hbOffsetYNpcmap2_1 = drawSizeNpcmap2_1 - hbHeightNpcmap2_1;      // 250 - 120 = 130 (đặt ở chân)
+            npc.setBattleHitbox(hbWidthNpcmap2_1, hbHeightNpcmap2_1, hbOffsetXNpcmap2_1, hbOffsetYNpcmap2_1);
             npc.setDefeated(ReadWriteData.isNpcDefeated(2, 2));
             npcs.add(npc);
             npc.setProximityDialogue(List.of(
@@ -54,6 +64,12 @@ public class ManageNPC {
             ));
 
             NPC shopNpc = new NPC(3 * 16, 5 * 16, 180, 0, 99);
+            double drawSizeNpcmap1_2 = shopNpc.getSize(); // Lấy 250
+            double hbWidthNpcmap1_2 = 80;
+            double hbHeightNpcmap1_2 = 120;
+            double hbOffsetXNpcmap1_2 = (drawSizeNpcmap1_2 - hbWidthNpcmap1_2) / 2; // (250 - 80) / 2 = 85
+            double hbOffsetYNpcmap1_2 = drawSizeNpcmap1_2 - hbHeightNpcmap1_2;      // 250 - 120 = 130 (đặt ở chân)
+            shopNpc.setBattleHitbox(hbWidthNpcmap1_2, hbHeightNpcmap1_2, hbOffsetXNpcmap1_2, hbOffsetYNpcmap1_2);
             shopNpc.setProximityDialogue(List.of(
                     new Dialogue("Chủ Cửa Hàng", "Anh Trai Luôn Giữ Bình Tĩnh (LGBT)! (Ấn ENTER)", 4.0)
             ));
@@ -65,6 +81,12 @@ public class ManageNPC {
 
             // 1. Luôn tải NPC đầu tiên (level 3)
             NPC boss1 = new NPC(241, -15, 300, 3, 3);
+            double drawSizeNpcmap2_1 = boss1.getSize(); // Lấy 250
+            double hbWidthNpcmap2_1 = 80;
+            double hbHeightNpcmap2_1 = 120;
+            double hbOffsetXNpcmap2_1 = (drawSizeNpcmap2_1 - hbWidthNpcmap2_1) / 2; // (250 - 80) / 2 = 85
+            double hbOffsetYNpcmap2_1 = drawSizeNpcmap2_1 - hbHeightNpcmap2_1;      // 250 - 120 = 130 (đặt ở chân)
+            boss1.setBattleHitbox(hbWidthNpcmap2_1, hbHeightNpcmap2_1, hbOffsetXNpcmap2_1, hbOffsetYNpcmap2_1);
             boolean boss1Defeated = ReadWriteData.isNpcDefeated(3, 3); // Kiểm tra "3-3"
             boss1.setDefeated(boss1Defeated);
             npcs.add(boss1);
@@ -76,17 +98,19 @@ public class ManageNPC {
                     new Dialogue("Fakerina", "Làm gì vậy? Đừng cắt!!", 4.0)
             ));
 
-            NPC shopNpc = new NPC(15 * 16 , 38 * 16, 100, 0, 99);
-            shopNpc.setProximityDialogue(List.of(
-                    new Dialogue("Chủ Cửa Hàng", "Một con mèo thì có thể bò, nhưng một con bò thì không thể mèo! (Ấn ENTER)", 4.0)
-            ));
-            npcs.add(shopNpc);
+
 
             // 2. NẾU boss 1 đã bị hạ (tải từ file save), THÌ tải NPC thứ hai (level 4)
             if (boss1Defeated) {
                 // Boss 2 là loại chơi lại, không cần check defeated
                 // Dùng hình ảnh type 2 (NPC Map 2) như bạn yêu cầu
-                NPC boss2 = new NPC(241, -15, 100, 4, 2); // Cùng tọa độ, Arkanoid Level 4, Type 2
+                NPC boss2 = new NPC(241, -15, 100, 4, 4);
+                double drawSizeNpcmap2_2 = boss2.getSize(); // Lấy 250
+                double hbWidthNpcmap2_2 = 80;
+                double hbHeightNpcmap2_2 = 120;
+                double hbOffsetXNpcmap2_2 = (drawSizeNpcmap2_2 - hbWidthNpcmap2_2) / 2; // (250 - 80) / 2 = 85
+                double hbOffsetYNpcmap2_2 = drawSizeNpcmap2_2 - hbHeightNpcmap2_2;      // 250 - 120 = 130 (đặt ở chân)
+                boss2.setBattleHitbox(hbWidthNpcmap2_2, hbHeightNpcmap2_2, hbOffsetXNpcmap2_2, hbOffsetYNpcmap2_2);// Cùng tọa độ, Arkanoid Level 4, Type 2
                 npcs.add(boss2); // Cứ thêm vào, không cần setDefeated
             }
             // --- KẾT THÚC LOGIC MỚI ---
@@ -115,7 +139,13 @@ public class ManageNPC {
 
             // Tạo boss 2 (level 4) và thêm vào danh sách *hiện tại*
             // Dùng hình ảnh type 2 (NPC Map 2)
-            NPC boss2 = new NPC(x, y, 100, 4, 2); // Arkanoid Level 4, Type 2
+            NPC boss2 = new NPC(x, y, 100, 4, 4);
+            double drawSizeNpcmap2_2 = boss2.getSize(); // Lấy 100
+            double hbWidthNpcmap2_2 = 80;
+            double hbHeightNpcmap2_2 = 120;
+            double hbOffsetXNpcmap2_2 = (drawSizeNpcmap2_2 - hbWidthNpcmap2_2) / 2; // (100 - 80) / 2 = 10
+            double hbOffsetYNpcmap2_2 = drawSizeNpcmap2_2 - hbHeightNpcmap2_2;      // 100 - 120 = -20
+            boss2.setBattleHitbox(hbWidthNpcmap2_2, hbHeightNpcmap2_2, hbOffsetXNpcmap2_2, hbOffsetYNpcmap2_2);// Arkanoid Level 4, Type 2
             npcs.add(boss2); // Thêm vào danh sách đang chạy
         }
     }

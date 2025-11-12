@@ -35,12 +35,12 @@ public class ManageNPC {
             npcs.add(npc);
 
             npc.setProximityDialogue(List.of(
-                    new Dialogue("Goblin", "Biết ông Từ không?", 2.0),
-                    new Dialogue("Goblin", "Từ nơi đồng xanh thơm hương lúa!", 2.0)
+                    new Dialogue("Goblin", "Một kẻ xâm nhập trái phép?", 2.0),
+                    new Dialogue("Goblin", "Hãy đỡ chiêu này của ta tên con người yếu ớt!", 2.0)
             ));
             npc.setBattleTauntDialogue(List.of(
-                    new Dialogue("Goblin", "Để cứu cháu bé ở Đồng Tháp không cần những phương tiện hiện đại", 2.0),
-                    new Dialogue("Goblin", "Mà chỉ cần kẹo sữa Mikita được làm từ sữa!", 2.0)
+                    new Dialogue("Goblin", "Ng...Ng... Ngươi mạnh đấy!", 2.0),
+                    new Dialogue("Goblin", "Ta sẽ còn trở lại!", 2.0)
             ));
 
 
@@ -56,11 +56,11 @@ public class ManageNPC {
             npc.setDefeated(ReadWriteData.isNpcDefeated(2, 2));
             npcs.add(npc);
             npc.setProximityDialogue(List.of(
-                    new Dialogue("Evil Eye", "Yodele i Hoo Aha, Biết rap không em!", 3.0),
-                    new Dialogue("Evil Eye", "SDsahdbkcksbak sDBaskj ra đây mà lấy!", 2.0)
+                    new Dialogue("Evil Eye", "Không một ai được  tiến vào lâu đài!", 3.0),
+                    new Dialogue("Evil Eye", "Chết đi con người!", 2.0)
             ));
             npc.setBattleTauntDialogue(List.of(
-                    new Dialogue("Evil Eye", "Mày thì biết cái quái gì về Mumble Rap!", 4.0)
+                    new Dialogue("Evil Eye", "Đừng tự cao, chỉ là ngươi may mắn thôi!", 4.0)
             ));
 
             NPC shopNpc = new NPC(3 * 16, 5 * 16, 180, 0, 99);
@@ -71,7 +71,7 @@ public class ManageNPC {
             double hbOffsetYNpcmap1_2 = drawSizeNpcmap1_2 - hbHeightNpcmap1_2;      // 250 - 120 = 130 (đặt ở chân)
             shopNpc.setBattleHitbox(hbWidthNpcmap1_2, hbHeightNpcmap1_2, hbOffsetXNpcmap1_2, hbOffsetYNpcmap1_2);
             shopNpc.setProximityDialogue(List.of(
-                    new Dialogue("Chủ Cửa Hàng", "Anh Trai Luôn Giữ Bình Tĩnh (LGBT)! (Ấn ENTER)", 4.0)
+                    new Dialogue("Chủ Cửa Hàng", "Con thật là người anh hùng quả cảm! Ở đây có một vài kĩ năng có thể giúp con mạnh hơn. (Ấn ENTER)", 4.0)
             ));
             shopNpc.setDefeated(ReadWriteData.isNpcDefeated(2, 0));
             npcs.add(shopNpc);
@@ -91,11 +91,11 @@ public class ManageNPC {
             boss1.setDefeated(boss1Defeated);
             npcs.add(boss1);
             boss1.setProximityDialogue(List.of(
-                    new Dialogue("Fakerina", "Glory Glory Man United!", 3.0),
-                    new Dialogue("Fakerina", "Thằng Lùn mặt quắt tai dơi...", 2.0)
+                    new Dialogue("Fakerina", "Ngươi đến được tận đây là giỏi lắm rồi!", 3.0),
+                    new Dialogue("Fakerina", "Nhưng rồi nguời cũng sẽ bỏ mạng dưới tay ta", 2.0)
             ));
             boss1.setBattleTauntDialogue(List.of(
-                    new Dialogue("Fakerina", "Làm gì vậy? Đừng cắt!!", 4.0)
+                    new Dialogue("Fakerina", "Không!... KHÔNG THỂ NÀO!", 4.0)
             ));
 
 

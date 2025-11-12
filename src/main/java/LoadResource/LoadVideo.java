@@ -66,10 +66,10 @@ public class LoadVideo {
                     videoPath = "/Video/Video_intro.mp4"; // (Bạn cần có file video này)
                     break;
                 case 2:
-                    videoPath = "/Video/Video_intro.mp4"; // (Tên file ví dụ)
+                    videoPath = "/Video/Video_map2.mp4"; // (Tên file ví dụ)
                     break;
                 case 3:
-                    videoPath = "/Video/Video_intro.mp4"; // (Tên file ví dụ)
+                    videoPath = "/Video/Video_map3.mp4"; // (Tên file ví dụ)
                     break;
                 default:
                     // Nếu không có video, chạy onFinish luôn
